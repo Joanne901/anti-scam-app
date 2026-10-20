@@ -45,7 +45,7 @@ export function NotifyCard(){
   let body, actions;
   if (needHomeScreen) {
     body = 'iPhone 要先「加到主畫面」,再從主畫面的圖示打開,才能開啟通知(Apple 的規定)。';
-    actions = <SmallBtn primary title="加到主畫面" onPress={startInstall} />;
+    actions = <SmallBtn primary title="加入" onPress={startInstall} />;
   } else if (status === 'denied') {
     body = ios
       ? '通知被關掉了。請到 iPhone「設定 → 通知 → 防詐小衛」開啟「允許通知」。'

@@ -69,13 +69,13 @@ export default function Banners({ top }){
   if (update) {
     toast = (
       <Toast icon="✨" title="防詐小衛有新版本" body={update.note || '更新後就能使用最新的功能與偵測規則。'}
-        action="立即更新" onAction={() => window.location.reload()} onClose={dismiss} />
+        action="更新" onAction={() => window.location.reload()} onClose={dismiss} />
     );
   } else if (showInstall) {
     toast = (
       <Toast icon="📲" title="加到主畫面"
         body={oneTap ? '一鍵安裝到主畫面,像 App 一樣使用。' : '像 App 一樣,從手機桌面直接打開。'}
-        action={oneTap ? '安裝' : '加到主畫面'}
+        action={oneTap ? '安裝' : '加入'}
         onAction={() => { close(); startInstall(); }} onClose={close} />
     );
   }

@@ -50,7 +50,7 @@ export default function MessageScreen(){
             <View style={{ flexDirection: 'row', marginTop: 10, paddingHorizontal: 2 }}>
               <Text style={{ fontSize: 12, marginRight: 6 }}>💡</Text>
               <Text style={{ flex: 1, fontSize: 12, lineHeight: 18, color: c.textDim }}>
-                最快最準的方法:iPhone 在「照片」打開截圖,<Text style={{ fontWeight: '800', color: c.text }}>長按文字 →「拷貝」</Text>;Android 用 Google 智慧鏡頭「複製文字」,再貼到下方。
+                最準:iPhone 在照片裡<Text style={{ fontWeight: '800', color: c.text }}>長按文字 → 拷貝</Text>,Android 用 Google 智慧鏡頭複製文字,再貼到下方。
               </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 14 }}>
@@ -68,9 +68,9 @@ export default function MessageScreen(){
           style={{ borderWidth: 1.5, borderColor: c.border, backgroundColor: c.surface2, color: c.text, borderRadius: 12, padding: 12, fontSize: 15, minHeight: 100, textAlignVertical: 'top' }}
         />
         <View style={{ height: 12 }} />
-        <Btn title="分析訊息" onPress={() => run()} />
+        <Btn title="分析" onPress={() => run()} />
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
-          <TextBtn title="試試範例詐騙訊息" onPress={() => { setText(SAMPLE); run(SAMPLE); }} />
+          <TextBtn title="範例訊息" onPress={() => { setText(SAMPLE); run(SAMPLE); }} />
           {(text || res || shot) ? <TextBtn title="清除" onPress={clear} /> : null}
         </View>
       </Card>
@@ -164,9 +164,9 @@ function UploadTile({ shot, ocr, err, onPress }){
           </>
         ) : (
           <>
-            <Text style={{ fontSize: 15, fontWeight: '800', color: c.primary }}>{shot ? '換一張截圖' : '上傳對話截圖'}</Text>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: c.primary }}>{shot ? '換一張' : '上傳'}</Text>
             <Text style={{ fontSize: 12.5, color: err ? c.dangerInk : c.textDim, marginTop: 3, lineHeight: 18 }}>
-              {err || (shot ? '已辨識並分析。辨識可能有錯字,可在下方修正後重新分析。' : '自動辨識文字並分析,截圖不會上傳到任何地方')}
+              {err || (shot ? '已分析。有錯字可在下方修正後再按「分析」。' : '自動辨識並分析,截圖不外傳')}
             </Text>
           </>
         )}

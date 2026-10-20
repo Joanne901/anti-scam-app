@@ -61,9 +61,9 @@ export default function UrlScreen(){
           style={{ borderWidth: 1.5, borderColor: c.border, backgroundColor: c.surface2, color: c.text, borderRadius: 12, padding: 12, fontSize: 15, minHeight: 80, textAlignVertical: 'top' }}
         />
         <View style={{ height: 12 }} />
-        <Btn title="檢查這個網址" onPress={() => run()} />
+        <Btn title="檢查" onPress={() => run()} />
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
-          <TextBtn title="試試範例詐騙網址" onPress={() => { setText(SAMPLE_URL); run(SAMPLE_URL); }} />
+          <TextBtn title="範例網址" onPress={() => { setText(SAMPLE_URL); run(SAMPLE_URL); }} />
           {(text || result) ? <TextBtn title="清除" onPress={() => { setText(''); setResult(null); }} /> : null}
         </View>
       </Card>

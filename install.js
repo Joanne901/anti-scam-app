@@ -147,7 +147,7 @@ export function InstallGuide(){
         ))}
         {g.copy && (
           <TouchableOpacity onPress={copy} activeOpacity={0.85} style={{ marginTop: 10, borderRadius: 12, borderWidth: 1.5, borderColor: c.border, paddingVertical: 11, alignItems: 'center' }}>
-            <Text style={{ color: c.text, fontWeight: '800', fontSize: 14 }}>{copied ? '已複製網址 ✓' : '複製網址'}</Text>
+            <Text style={{ color: c.text, fontWeight: '800', fontSize: 14 }}>{copied ? '已複製 ✓' : '複製網址'}</Text>
           </TouchableOpacity>
         )}
         <TouchableOpacity onPress={() => setOpen(false)} activeOpacity={0.85} style={{ marginTop: 12, backgroundColor: c.primary, borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}>
@@ -173,7 +173,7 @@ export function InstallButton({ style }){
         <Text style={{ fontSize: 22 }}>📲</Text>
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 15, fontWeight: '900', color: c.primary }}>{oneTap ? '一鍵安裝到主畫面' : '加到主畫面'}</Text>
+        <Text style={{ fontSize: 15, fontWeight: '900', color: c.primary }}>{oneTap ? '一鍵安裝' : '加到主畫面'}</Text>
         <Text style={{ fontSize: 12.5, color: c.textDim, marginTop: 2 }}>像 App 一樣,從手機桌面直接打開</Text>
       </View>
       <Text style={{ fontSize: 20, color: c.primary, marginLeft: 8 }}>›</Text>
