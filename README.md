@@ -88,3 +88,15 @@ eas build -p ios --profile preview
 > repo 名稱若不是 `anti-scam-app`,要同步改 `app.json` 裡的 `experiments.baseUrl`。
 > 在 LINE 分享時網址加上 `?openExternalBrowser=1`,會用手機瀏覽器開啟而不是 LINE 內建瀏覽器。
 > 本機試網頁版:`npm run web`
+
+### 加到手機主畫面(像 App 一樣使用)
+
+- **iPhone**:用 Safari 開網址 → 點下方「分享」⬆️ → 「加入主畫面」。
+- **Android**:用 Chrome 開網址 → 畫面會跳出「安裝」提示直接按;或點右上角 ⋮ → 「加到主畫面 / 安裝應用程式」。
+- 在 LINE 裡點開的話,網址後面要加 `?openExternalBrowser=1`,才會跳到手機瀏覽器(LINE 內建瀏覽器不能加到主畫面)。
+
+### 更新通知
+
+每次 push 後重新部署,`scripts/postbuild-web.js` 會產生 `version.json`(含這次 commit 的標題)。
+使用者開著網頁或從主畫面打開時,App 會檢查是否有新版,有的話跳出「有新版本」提示,
+**commit 標題就是提示裡顯示的更新說明**,所以 commit 標題寫給使用者看得懂的話。

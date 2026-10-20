@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, Pressable, useColorScheme } from 'react-native';
+import { View, Text, Pressable, useColorScheme } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,8 +10,10 @@ import UrlScreen from './screens/UrlScreen';
 import MessageScreen from './screens/MessageScreen';
 import GuideScreen from './screens/GuideScreen';
 import SosScreen from './screens/SosScreen';
+import Banners from './banners';
 
 const Tab = createBottomTabNavigator();
+const TAB_BAR_HEIGHT = 64;
 
 const TabIcon = (emoji) => ({ focused }) => (
   <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.6 }}>{emoji}</Text>
@@ -44,7 +46,7 @@ function Tabs(){
   };
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <NavigationContainer theme={navTheme}>
         <Tab.Navigator
@@ -55,7 +57,7 @@ function Tabs(){
             headerShown: false,
             tabBarActiveTintColor: c.primary,
             tabBarInactiveTintColor: c.textFaint,
-            tabBarStyle: { height: 64 + insets.top, paddingTop: insets.top, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border, elevation: 0, shadowOpacity: 0 },
+            tabBarStyle: { height: TAB_BAR_HEIGHT + insets.top, paddingTop: insets.top, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border, elevation: 0, shadowOpacity: 0 },
             tabBarItemStyle: { paddingTop: 4, paddingBottom: 6 },
             tabBarLabelStyle: { fontSize: 13, lineHeight: 18, fontWeight: '800', marginTop: 2, flexShrink: 0 },
             tabBarActiveBackgroundColor: c.surface,
@@ -68,7 +70,8 @@ function Tabs(){
           <Tab.Screen name="緊急求助" component={SosScreen} options={{ tabBarIcon: TabIcon('🆘') }} />
         </Tab.Navigator>
       </NavigationContainer>
-    </>
+      <Banners top={insets.top + TAB_BAR_HEIGHT + 8} />
+    </View>
   );
 }
 

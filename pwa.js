@@ -1,0 +1,90 @@
+// 網頁版專用：檢查新版本、加到主畫面提示
+import { Platform } from 'react-native';
+
+const isWeb = Platform.OS === 'web' && typeof window !== 'undefined';
+
+// ---- 新版本檢查 ----
+// 打包時會產生 version.json（記錄當版程式檔名與更新說明），和目前頁面載入的程式檔名不同就代表有新版
+function currentBundle(){
+  const s = document.querySelector('script[src*="_expo/static/js/web/"]');
+  const m = s && s.getAttribute('src').match(/_expo\/static\/js\/web\/[^?#]+\.js/);
+  return m ? m[0] : null;
+}
+
+export async function checkForUpdate(){
+  if (!isWeb) return null;
+  const mine = currentBundle();
+  if (!mine) return null; // 開發模式沒有打包檔，不檢查
+  try {
+    const url = new URL('version.json', document.baseURI || window.location.href);
+    url.searchParams.set('t', Date.now());
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const v = await res.json();
+    return v.bundle && v.bundle !== mine ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export function onAppVisible(cb){
+  if (!isWeb) return () => {};
+  const h = () => { if (document.visibilityState === 'visible') cb(); };
+  document.addEventListener('visibilitychange', h);
+  return () => document.removeEventListener('visibilitychange', h);
+}
+
+// ---- 加到主畫面 ----
+let deferredPrompt = null;
+const promptListeners = new Set();
+if (isWeb) {
+  // Android Chrome 會在可安裝時發出這個事件，先攔下來，等使用者按「安裝」再叫出系統視窗
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    promptListeners.forEach(f => f());
+  });
+  window.addEventListener('appinstalled', () => { deferredPrompt = null; promptListeners.forEach(f => f()); });
+}
+
+export function onInstallAvailable(cb){
+  promptListeners.add(cb);
+  return () => promptListeners.delete(cb);
+}
+
+export function canPromptInstall(){ return !!deferredPrompt; }
+
+export async function promptInstall(){
+  if (!deferredPrompt) return false;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  return outcome === 'accepted';
+}
+
+export function isStandalone(){
+  if (!isWeb) return true;
+  return window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+export function deviceKind(){
+  if (!isWeb) return 'native';
+  const ua = navigator.userAgent || '';
+  if (/iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return 'ios';
+  if (/Android/i.test(ua)) return 'android';
+  return 'desktop';
+}
+
+// 在 LINE / FB / IG 內建瀏覽器裡無法加到主畫面
+export function inAppBrowser(){
+  if (!isWeb) return false;
+  return /Line\/|FBAN|FBAV|Instagram/i.test(navigator.userAgent || '');
+}
+
+const DISMISS_KEY = 'installTipDismissed';
+export function installTipDismissed(){
+  try { return localStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; }
+}
+export function dismissInstallTip(){
+  try { localStorage.setItem(DISMISS_KEY, '1'); } catch {}
+}
