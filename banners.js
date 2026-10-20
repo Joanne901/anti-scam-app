@@ -14,7 +14,7 @@ function Toast({ icon, title, body, action, onAction, onClose }){
   return (
     <View style={{
       flexDirection: 'row', alignItems: 'center', backgroundColor: c.surface, borderRadius: 14,
-      borderWidth: 1, borderColor: c.primary, padding: 12,
+      borderWidth: 1, borderColor: c.primaryLine, padding: 12,
       shadowColor: '#141929', shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 6,
     }}>
       <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>

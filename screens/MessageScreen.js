@@ -143,7 +143,7 @@ function UploadTile({ shot, ocr, err, onPress }){
   return (
     <Press variant="card" onPress={onPress} accessibilityRole="button" style={{
       flexDirection: 'row', alignItems: 'center', borderRadius: 14, borderWidth: 1.5, borderStyle: 'dashed',
-      borderColor: c.textFaint, backgroundColor: c.primarySoft, padding: 12,
+      borderColor: c.primary, backgroundColor: c.primarySoft, padding: 12,
     }}>
       {shot ? (
         <Image source={{ uri: shot }} style={{ width: 48, height: 80, borderRadius: 8, backgroundColor: c.border }} resizeMode="cover" />

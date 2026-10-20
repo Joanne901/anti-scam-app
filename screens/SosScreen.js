@@ -30,9 +30,9 @@ function Step({ n, s, last }){
       <View style={{ alignItems: 'center', width: 30, marginRight: 12 }}>
         <View style={{
           width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
-          backgroundColor: c.primary,
+          backgroundColor: c.primarySoft, borderWidth: 1, borderColor: c.primaryLine,
         }}>
-          <Text style={{ color: c.primaryInk, fontWeight: '900', fontSize: 13 }}>{n}</Text>
+          <Text style={{ color: c.primary, fontWeight: '900', fontSize: 13 }}>{n}</Text>
         </View>
         {!last && <View style={{ flex: 1, width: 2, backgroundColor: c.border, marginVertical: 3 }} />}
       </View>
@@ -40,9 +40,9 @@ function Step({ n, s, last }){
         <Text style={{ fontWeight: '800', fontSize: 15, color: c.text, marginTop: 3 }}>{s.t}</Text>
         <Text style={{ fontSize: 13, color: c.textDim, lineHeight: 20, marginTop: 4 }}>{s.d}</Text>
         {s.call && (
-          <Press variant="soft" onPress={() => call(s.call)} accessibilityRole="button" style={{
+          <Press variant="ice" onPress={() => call(s.call)} accessibilityRole="button" style={{
             alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', marginTop: 9,
-            backgroundColor: c.primarySoft, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12,
+            backgroundColor: c.primarySoft, borderWidth: 1, borderColor: c.primaryLine, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12,
           }}>
             <View style={{ marginRight: 5 }}><Icon name="phone" size={13} color={c.primary} strokeWidth={2.2} /></View>
             <Text style={{ color: c.primary, fontWeight: '800', fontSize: 13 }}>撥打 {s.call}</Text>
@@ -60,7 +60,7 @@ export default function SosScreen(){
     <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
       <SubText style={{ marginBottom: 12 }}>別慌，照順序做。愈早處理，擋下損失的機會愈大。</SubText>
 
-      <View style={{ backgroundColor: c.dangerSoft, borderRadius: 16, borderWidth: 1, borderColor: c.danger, padding: 15, marginBottom: 18 }}>
+      <View style={{ backgroundColor: c.dangerSoft, borderRadius: 16, borderWidth: 1, borderColor: c.dangerLine, padding: 15, marginBottom: 18 }}>
         <Text style={{ color: c.dangerInk, fontWeight: '900', fontSize: 16 }}>先打電話求助</Text>
         <Text style={{ color: c.textDim, fontSize: 12.5, marginTop: 4, marginBottom: 13, lineHeight: 19 }}>165 反詐騙專線 24 小時服務，可諮詢、通報並協助聯繫銀行；有立即危險請打 110。</Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>

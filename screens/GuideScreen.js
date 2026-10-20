@@ -69,12 +69,12 @@ function Item({ g }){
 function Chip({ label, count, active, onPress }){
   const c = useTheme();
   return (
-    <Press variant={active ? 'solid' : 'soft'} onPress={onPress} accessibilityRole="button" style={{
+    <Press variant={active ? 'ice' : 'soft'} onPress={onPress} accessibilityRole="button" style={{
       flexDirection: 'row', alignItems: 'center', paddingVertical: 7, paddingHorizontal: 13, borderRadius: 999, marginRight: 8,
-      backgroundColor: active ? c.primary : c.surface, borderWidth: 1, borderColor: active ? c.primary : c.border,
+      backgroundColor: active ? c.primarySoft : c.surface, borderWidth: 1, borderColor: active ? c.primaryLine : c.border,
     }}>
-      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? c.primaryInk : c.text }}>{label}</Text>
-      <Text style={{ fontSize: 12, fontWeight: '700', marginLeft: 5, color: active ? c.primaryInk : c.textFaint }}>{count}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? c.primary : c.text }}>{label}</Text>
+      <Text style={{ fontSize: 12, fontWeight: '700', marginLeft: 5, color: active ? c.primary : c.textFaint }}>{count}</Text>
     </Press>
   );
 }
