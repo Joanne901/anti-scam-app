@@ -6,7 +6,7 @@ import { useTheme } from './theme';
 // 平常看起來是鼓起來的（上亮下暗的漸層、頂端亮邊、底下陰影），按下去會往內凹、縮一點，放開彈回來。
 //  solid   黑色主要按鈕（檢查、分析、開啟…）
 //  soft    淺色次要按鈕（清除、測試、關閉…）
-//  danger  霧紅色緊急按鈕（165）
+//  danger  紅色緊急按鈕（165）
 //  ice     霜霧藍（選中的分類、撥打電話）
 //  card    整張可以點的卡片：平常不變，按下去往內凹一點
 //  ghost   文字連結、關閉 ✕：按下去底下出現一個淺淺的凹槽
@@ -28,7 +28,7 @@ function tactile(variant, pressed, c, dark){
   });
   switch (variant) {
     case 'solid':  return dark ? look('#ffffff', '#d9d9de', sh('0,0,0', 0.5)) : look('#3a3a41', '#141417', sh('15,15,25', 0.22));
-    case 'danger': return look(c.dangerTop, c.dangerBottom, sh(c.dangerGlow, dark ? 0.5 : 0.26));
+    case 'danger': return look(c.dangerTop, c.dangerBottom, sh(c.dangerGlow, dark ? 0.5 : 0.28));
     case 'ice':    return look(c.iceTop, c.iceBottom, sh(c.iceGlow, dark ? 0.5 : 0.14));
     case 'soft': return pressed
       ? { backgroundImage: dark ? 'linear-gradient(180deg,#1b1b1f,#25252a)' : 'linear-gradient(180deg,#e6e6eb,#f1f1f4)', boxShadow: `inset 0 2px 5px rgba(0,0,0,${dark ? 0.55 : 0.14})` }

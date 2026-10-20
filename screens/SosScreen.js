@@ -60,7 +60,7 @@ export default function SosScreen(){
     <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
       <SubText style={{ marginBottom: 12 }}>別慌，照順序做。愈早處理，擋下損失的機會愈大。</SubText>
 
-      <View style={{ backgroundColor: c.dangerSoft, borderRadius: 16, borderWidth: 1, borderColor: c.dangerLine, padding: 15, marginBottom: 18 }}>
+      <View style={{ backgroundColor: c.dangerSoft, borderRadius: 16, borderWidth: 1, borderColor: c.danger, padding: 15, marginBottom: 18 }}>
         <Text style={{ color: c.dangerInk, fontWeight: '900', fontSize: 16 }}>先打電話求助</Text>
         <Text style={{ color: c.textDim, fontSize: 12.5, marginTop: 4, marginBottom: 13, lineHeight: 19 }}>165 反詐騙專線 24 小時服務，可諮詢、通報並協助聯繫銀行；有立即危險請打 110。</Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
