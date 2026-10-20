@@ -8,7 +8,7 @@ export function Card({ children, style }){
     <View style={[{
       backgroundColor: c.surface, borderColor: c.border, borderWidth: 1, borderRadius: 16,
       padding: 16, marginBottom: 14,
-      shadowColor: '#141929', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 2,
+      shadowColor: '#141929', shadowOpacity: c.shadow, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: c.shadow ? 2 : 0,
     }, style]}>{children}</View>
   );
 }
@@ -19,9 +19,9 @@ export function Btn({ title, onPress, secondary, small, style }){
   return (
     <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={[{
       borderRadius: 12, paddingVertical: small ? 10 : 13, paddingHorizontal: 16, alignItems: 'center',
-      backgroundColor: primary ? c.primary : c.surface2, borderWidth: primary ? 0 : 1.5, borderColor: c.border,
+      backgroundColor: primary ? c.solid : c.surface2, borderWidth: primary ? 0 : 1.5, borderColor: c.border,
     }, style]}>
-      <Text style={{ color: primary ? c.primaryInk : c.text, fontWeight: '700', fontSize: small ? 13.5 : 15 }}>{title}</Text>
+      <Text style={{ color: primary ? c.solidInk : c.text, fontWeight: '700', fontSize: small ? 13.5 : 15 }}>{title}</Text>
     </TouchableOpacity>
   );
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Linking } from 'react-native';
 import { useTheme } from '../theme';
+import Icon from '../icons';
 import { SubText, Note } from '../components';
 import { STEPS, STEP_PHASES } from '../data';
 
@@ -43,7 +44,7 @@ function Step({ n, s, last }){
             alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', marginTop: 9,
             backgroundColor: c.primarySoft, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12,
           }}>
-            <Text style={{ fontSize: 12, marginRight: 5 }}>📞</Text>
+            <View style={{ marginRight: 5 }}><Icon name="phone" size={13} color={c.primary} strokeWidth={2.2} /></View>
             <Text style={{ color: c.primary, fontWeight: '800', fontSize: 13 }}>撥打 {s.call}</Text>
           </TouchableOpacity>
         )}

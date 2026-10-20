@@ -11,10 +11,10 @@ function SmallBtn({ title, onPress, primary }){
   const c = useTheme();
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={{
-      backgroundColor: primary ? c.primary : c.surface2, borderWidth: primary ? 0 : 1, borderColor: c.border,
+      backgroundColor: primary ? c.solid : c.surface2, borderWidth: primary ? 0 : 1, borderColor: c.border,
       borderRadius: 10, paddingVertical: 8, paddingHorizontal: 13, marginLeft: 8,
     }}>
-      <Text style={{ color: primary ? c.primaryInk : c.text, fontWeight: '800', fontSize: 13 }}>{title}</Text>
+      <Text style={{ color: primary ? c.solidInk : c.text, fontWeight: '800', fontSize: 13 }}>{title}</Text>
     </TouchableOpacity>
   );
 }

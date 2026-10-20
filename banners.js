@@ -24,8 +24,8 @@ function Toast({ icon, title, body, action, onAction, onClose }){
         {body ? <Text style={{ fontSize: 12.5, color: c.textDim, marginTop: 2, lineHeight: 18 }}>{body}</Text> : null}
       </View>
       {action ? (
-        <TouchableOpacity onPress={onAction} activeOpacity={0.85} style={{ backgroundColor: c.primary, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 10 }}>
-          <Text style={{ color: c.primaryInk, fontWeight: '800', fontSize: 13 }}>{action}</Text>
+        <TouchableOpacity onPress={onAction} activeOpacity={0.85} style={{ backgroundColor: c.solid, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 10 }}>
+          <Text style={{ color: c.solidInk, fontWeight: '800', fontSize: 13 }}>{action}</Text>
         </TouchableOpacity>
       ) : null}
       <TouchableOpacity onPress={onClose} hitSlop={10} style={{ paddingLeft: 10 }}>

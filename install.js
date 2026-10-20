@@ -151,8 +151,8 @@ export function InstallGuide(){
             <Text style={{ color: c.text, fontWeight: '800', fontSize: 14 }}>{copied ? '已複製 ✓' : '複製網址'}</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={() => setOpen(false)} activeOpacity={0.85} style={{ marginTop: 12, backgroundColor: c.primary, borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}>
-          <Text style={{ color: c.primaryInk, fontWeight: '800', fontSize: 15 }}>知道了</Text>
+        <TouchableOpacity onPress={() => setOpen(false)} activeOpacity={0.85} style={{ marginTop: 12, backgroundColor: c.solid, borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}>
+          <Text style={{ color: c.solidInk, fontWeight: '800', fontSize: 15 }}>知道了</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -1,21 +1,29 @@
 import { useColorScheme } from 'react-native';
 
+// 配色：黑白灰為底、細邊框、不用陰影（俐落科技感），原本的藍色留作點綴
+//  solid    主要動作按鈕（檢查、分析…）用黑色
+//  primary  點綴用的藍：文字連結、圖示、選中的分類、步驟編號
+//  danger / warn / ok  只用在風險提示
 const light = {
-  bg:'#eef0f6', surface:'#ffffff', surface2:'#f6f7fb', border:'#e3e6ef',
-  text:'#161922', textDim:'#596075', textFaint:'#8b92a6',
-  primary:'#3b5bdb', primaryInk:'#ffffff', primarySoft:'#e7ecfb',
-  danger:'#e03131', dangerSoft:'#fdecec', dangerInk:'#b01c1c',
-  warn:'#e8820c', warnSoft:'#fff3e0', warnInk:'#9a5600',
-  ok:'#2f9e44', okSoft:'#e7f6ec', okInk:'#1e7a30',
+  bg:'#f4f4f5', surface:'#ffffff', surface2:'#fafafa', border:'#e4e4e7',
+  text:'#09090b', textDim:'#52525b', textFaint:'#a1a1aa',
+  solid:'#18181b', solidInk:'#ffffff',
+  primary:'#3b5bdb', primaryInk:'#ffffff', primarySoft:'#eef1fc',
+  danger:'#dc2626', dangerSoft:'#fef2f2', dangerInk:'#991b1b',
+  warn:'#d97706', warnSoft:'#fffbeb', warnInk:'#92400e',
+  ok:'#16a34a', okSoft:'#f0fdf4', okInk:'#166534',
+  shadow: 0,
 };
 
 const dark = {
-  bg:'#0e1014', surface:'#191c23', surface2:'#20242d', border:'#2b303c',
-  text:'#eaedf4', textDim:'#9aa2b5', textFaint:'#747c90',
-  primary:'#5c7cfa', primaryInk:'#0e1014', primarySoft:'#1c2740',
-  danger:'#ff6b6b', dangerSoft:'#38191b', dangerInk:'#ff9b9b',
-  warn:'#ffa94d', warnSoft:'#39290f', warnInk:'#ffc078',
-  ok:'#51cf66', okSoft:'#15281a', okInk:'#8ce99a',
+  bg:'#09090b', surface:'#141417', surface2:'#1c1c20', border:'#27272a',
+  text:'#fafafa', textDim:'#a1a1aa', textFaint:'#71717a',
+  solid:'#fafafa', solidInk:'#09090b',
+  primary:'#6f8bfa', primaryInk:'#09090b', primarySoft:'#1a2035',
+  danger:'#f87171', dangerSoft:'#2a1214', dangerInk:'#fca5a5',
+  warn:'#fbbf24', warnSoft:'#2a2010', warnInk:'#fcd34d',
+  ok:'#4ade80', okSoft:'#0f2416', okInk:'#86efac',
+  shadow: 0,
 };
 
 export function useTheme(){

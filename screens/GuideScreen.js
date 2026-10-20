@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
+import Icon from '../icons';
 import { SubText } from '../components';
 import { GUIDE, GUIDE_CATS } from '../data';
 
@@ -43,7 +44,7 @@ function Item({ g }){
     <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: open ? c.primary : c.border, borderRadius: 14, marginBottom: 10, overflow: 'hidden' }}>
       <TouchableOpacity activeOpacity={0.7} onPress={() => setOpen(o => !o)} style={{ flexDirection: 'row', alignItems: 'center', padding: 12 }}>
         <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
-          <Text style={{ fontSize: 21 }}>{g.em}</Text>
+          <Icon name={g.icon} size={21} color={c.primary} strokeWidth={1.9} />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontWeight: '800', fontSize: 15, color: c.text }}>{g.name}</Text>
@@ -105,7 +106,7 @@ export default function GuideScreen(){
       {cats.map(k => (
         <View key={k.key}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16, marginBottom: 9 }}>
-            <Text style={{ fontSize: 15, marginRight: 6 }}>{k.em}</Text>
+            <View style={{ marginRight: 7 }}><Icon name={k.icon} size={16} color={c.text} strokeWidth={2} /></View>
             <Text style={{ fontSize: 14, fontWeight: '800', color: c.text }}>{k.name}</Text>
             <View style={{ flex: 1, height: 1, backgroundColor: c.border, marginLeft: 10 }} />
           </View>
