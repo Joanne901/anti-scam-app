@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Linking } from 'react-native';
 import { useTheme } from '../theme';
 import Icon from '../icons';
-import { SubText, Note } from '../components';
+import { SubText, Note, Press } from '../components';
 import { STEPS, STEP_PHASES } from '../data';
 
 const call = (n) => Linking.openURL('tel:' + n);
@@ -10,7 +10,7 @@ const call = (n) => Linking.openURL('tel:' + n);
 function CallButton({ num, label, solid }){
   const c = useTheme();
   return (
-    <TouchableOpacity activeOpacity={0.85} onPress={() => call(num)} style={{
+    <Press variant={solid ? 'danger' : 'soft'} onPress={() => call(num)} accessibilityRole="button" style={{
       flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 13, paddingVertical: 12,
       backgroundColor: solid ? c.danger : c.surface, borderWidth: 1.5, borderColor: c.danger,
     }}>
@@ -18,7 +18,7 @@ function CallButton({ num, label, solid }){
         <Text style={{ color: solid ? '#fff' : c.danger, fontWeight: '900', fontSize: 22, letterSpacing: 1.5 }}>{num}</Text>
         <Text style={{ color: solid ? '#fff' : c.danger, fontSize: 11.5, fontWeight: '700', opacity: 0.9, marginTop: 1 }}>撥打・{label}</Text>
       </View>
-    </TouchableOpacity>
+    </Press>
   );
 }
 
@@ -40,13 +40,13 @@ function Step({ n, s, last }){
         <Text style={{ fontWeight: '800', fontSize: 15, color: c.text, marginTop: 3 }}>{s.t}</Text>
         <Text style={{ fontSize: 13, color: c.textDim, lineHeight: 20, marginTop: 4 }}>{s.d}</Text>
         {s.call && (
-          <TouchableOpacity onPress={() => call(s.call)} activeOpacity={0.85} style={{
+          <Press variant="soft" onPress={() => call(s.call)} accessibilityRole="button" style={{
             alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', marginTop: 9,
             backgroundColor: c.primarySoft, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12,
           }}>
             <View style={{ marginRight: 5 }}><Icon name="phone" size={13} color={c.primary} strokeWidth={2.2} /></View>
             <Text style={{ color: c.primary, fontWeight: '800', fontSize: 13 }}>撥打 {s.call}</Text>
-          </TouchableOpacity>
+          </Press>
         )}
       </View>
     </View>

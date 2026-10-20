@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { useTheme } from './theme';
 import Icon from './icons';
+import { Press } from './components';
 import { checkForUpdate, onAppVisible, installTipDismissed, dismissInstallTip, onInstallAvailable, canPromptInstall } from './pwa';
 import { canShowInstall, startInstall } from './install';
 
@@ -24,13 +25,13 @@ function Toast({ icon, title, body, action, onAction, onClose }){
         {body ? <Text style={{ fontSize: 12.5, color: c.textDim, marginTop: 2, lineHeight: 18 }}>{body}</Text> : null}
       </View>
       {action ? (
-        <TouchableOpacity onPress={onAction} activeOpacity={0.85} style={{ backgroundColor: c.solid, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 10 }}>
+        <Press variant="solid" onPress={onAction} accessibilityRole="button" style={{ backgroundColor: c.solid, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, marginLeft: 10 }}>
           <Text style={{ color: c.solidInk, fontWeight: '800', fontSize: 13 }}>{action}</Text>
-        </TouchableOpacity>
+        </Press>
       ) : null}
-      <TouchableOpacity onPress={onClose} hitSlop={10} style={{ paddingLeft: 10 }}>
+      <Press variant="ghost" onPress={onClose} hitSlop={10} accessibilityLabel="關閉" style={{ marginLeft: 6, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
         <Text style={{ color: c.textFaint, fontSize: 18 }}>✕</Text>
-      </TouchableOpacity>
+      </Press>
     </View>
   );
 }

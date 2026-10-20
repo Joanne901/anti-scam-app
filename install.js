@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, Pressable, Animated, Platform } from 'react-native';
 import { useTheme } from './theme';
 import Icon from './icons';
+import { Press } from './components';
 import {
   onInstallAvailable, canPromptInstall, promptInstall,
   isStandalone, deviceKind, iosBrowser, iosMajor, androidBrowser, inAppBrowser, inLineApp, openInExternalBrowser,
@@ -132,7 +133,7 @@ export function InstallGuide(){
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ marginRight: 9 }}><Icon name="smartphone" size={22} color={c.primary} /></View>
           <Text style={{ fontSize: 18, fontWeight: '900', color: c.text, flex: 1 }}>加到主畫面</Text>
-          <TouchableOpacity onPress={() => setOpen(false)} hitSlop={10}><Text style={{ fontSize: 18, color: c.textFaint }}>✕</Text></TouchableOpacity>
+          <Press variant="ghost" onPress={() => setOpen(false)} hitSlop={10} accessibilityLabel="關閉" style={{ width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 18, color: c.textFaint }}>✕</Text></Press>
         </View>
         <Text style={{ fontSize: 13, color: c.textDim, lineHeight: 19, marginTop: 6, marginBottom: 12 }}>{g.intro}</Text>
         {g.steps.map(([text, icon], i) => (
@@ -147,13 +148,13 @@ export function InstallGuide(){
           </View>
         ))}
         {g.copy && (
-          <TouchableOpacity onPress={copy} activeOpacity={0.85} style={{ marginTop: 10, borderRadius: 12, borderWidth: 1.5, borderColor: c.border, paddingVertical: 11, alignItems: 'center' }}>
+          <Press variant="soft" onPress={copy} accessibilityRole="button" style={{ marginTop: 10, borderRadius: 12, borderWidth: 1, borderColor: c.border, paddingVertical: 11, alignItems: 'center' }}>
             <Text style={{ color: c.text, fontWeight: '800', fontSize: 14 }}>{copied ? '已複製 ✓' : '複製網址'}</Text>
-          </TouchableOpacity>
+          </Press>
         )}
-        <TouchableOpacity onPress={() => setOpen(false)} activeOpacity={0.85} style={{ marginTop: 12, backgroundColor: c.solid, borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}>
+        <Press variant="solid" onPress={() => setOpen(false)} accessibilityRole="button" style={{ marginTop: 12, backgroundColor: c.solid, borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}>
           <Text style={{ color: c.solidInk, fontWeight: '800', fontSize: 15 }}>知道了</Text>
-        </TouchableOpacity>
+        </Press>
       </View>
     </View>
   );
@@ -166,7 +167,7 @@ export function InstallButton({ style }){
   useEffect(() => onInstallAvailable(() => setOneTap(canPromptInstall())), []);
   if (!canShowInstall()) return null;
   return (
-    <TouchableOpacity onPress={startInstall} activeOpacity={0.85} style={[{
+    <Press variant="card" onPress={startInstall} accessibilityRole="button" style={[{
       flexDirection: 'row', alignItems: 'center', backgroundColor: c.surface, borderWidth: 1.5, borderColor: c.primary,
       borderRadius: 14, padding: 13, marginBottom: 14,
     }, style]}>
@@ -178,6 +179,6 @@ export function InstallButton({ style }){
         <Text style={{ fontSize: 12.5, color: c.textDim, marginTop: 2 }}>像 App 一樣，從手機桌面直接打開</Text>
       </View>
       <Text style={{ fontSize: 20, color: c.primary, marginLeft: 8 }}>›</Text>
-    </TouchableOpacity>
+    </Press>
   );
 }

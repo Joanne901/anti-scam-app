@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useTheme } from './theme';
 import Icon from './icons';
+import { Press } from './components';
 import { isStandalone, deviceKind } from './pwa';
 import { startInstall } from './install';
 import { pushSupported, pushStatus, enablePush, disablePush, sendTestPush, refreshPushSubscription } from './push';
@@ -10,12 +11,12 @@ import { pushSupported, pushStatus, enablePush, disablePush, sendTestPush, refre
 function SmallBtn({ title, onPress, primary }){
   const c = useTheme();
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={{
+    <Press variant={primary ? 'solid' : 'soft'} onPress={onPress} accessibilityRole="button" style={{
       backgroundColor: primary ? c.solid : c.surface2, borderWidth: primary ? 0 : 1, borderColor: c.border,
       borderRadius: 10, paddingVertical: 8, paddingHorizontal: 13, marginLeft: 8,
     }}>
       <Text style={{ color: primary ? c.solidInk : c.text, fontWeight: '800', fontSize: 13 }}>{title}</Text>
-    </TouchableOpacity>
+    </Press>
   );
 }
 

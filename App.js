@@ -12,6 +12,7 @@ import GuideScreen from './screens/GuideScreen';
 import SosScreen from './screens/SosScreen';
 import Banners from './banners';
 import Icon from './icons';
+import { buzz } from './components';
 import { InstallGuide } from './install';
 import { isStandalone } from './pwa';
 
@@ -70,7 +71,7 @@ function TopTabBar({ state, descriptors, navigation, c, top, dark }){
           };
           const sinking = pressing === i && !focused; // 按住還沒選中的分頁：底下出現一個凹下去的淺坑
           return (
-            <Pressable key={route.key} onPress={onPress} onPressIn={() => setPressing(i)} onPressOut={() => setPressing(-1)}
+            <Pressable key={route.key} onPress={onPress} onPressIn={() => { buzz(); setPressing(i); }} onPressOut={() => setPressing(-1)}
               accessibilityRole="tab" accessibilityState={{ selected: focused }} accessibilityLabel={options.tabBarAccessibilityLabel}
               style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
               {sinking && (

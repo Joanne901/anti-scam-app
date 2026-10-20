@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, View, Text, TextInput, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
 import Icon from '../icons';
-import { Card, Btn, Label, SubText, Note, Verdict, Reason, SectionTitle, TextBtn } from '../components';
+import { Card, Btn, Label, SubText, Note, Verdict, Reason, SectionTitle, TextBtn, Press } from '../components';
 import { scanMessage } from '../analyze';
 import { ocrSupported, pickImage, recognizeImage, warmupOcr } from '../ocr';
 
@@ -141,9 +141,9 @@ const LINK_LEVEL = { danger: 'hi', warn: 'mid', low: 'lo', ok: 'info' };
 function UploadTile({ shot, ocr, err, onPress }){
   const c = useTheme();
   return (
-    <TouchableOpacity activeOpacity={0.8} onPress={onPress} accessibilityRole="button" style={{
+    <Press variant="card" onPress={onPress} accessibilityRole="button" style={{
       flexDirection: 'row', alignItems: 'center', borderRadius: 14, borderWidth: 1.5, borderStyle: 'dashed',
-      borderColor: c.primary, backgroundColor: c.primarySoft, padding: 12,
+      borderColor: c.textFaint, backgroundColor: c.primarySoft, padding: 12,
     }}>
       {shot ? (
         <Image source={{ uri: shot }} style={{ width: 48, height: 80, borderRadius: 8, backgroundColor: c.border }} resizeMode="cover" />
@@ -172,6 +172,6 @@ function UploadTile({ shot, ocr, err, onPress }){
           </>
         )}
       </View>
-    </TouchableOpacity>
+    </Press>
   );
 }

@@ -1,6 +1,61 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Pressable, Platform, useColorScheme } from 'react-native';
 import { useTheme } from './theme';
+
+// ---- 有觸感的按鈕 ----
+// 平常看起來是鼓起來的（上亮下暗的漸層、頂端亮邊、底下陰影），按下去會往內凹、縮一點，放開彈回來。
+//  solid   黑色主要按鈕（檢查、分析、開啟…）
+//  soft    淺色次要按鈕（清除、測試、關閉…）
+//  danger  紅色緊急按鈕（165）
+//  card    整張可以點的卡片：平常不變，按下去往內凹一點
+//  ghost   文字連結、關閉 ✕：按下去底下出現一個淺淺的凹槽
+const SCALE = { solid: 0.97, soft: 0.97, danger: 0.97, card: 0.985, ghost: 0.92 };
+
+// 按下去時輕輕震一下（Android 的瀏覽器才支援；iPhone 不允許網頁震動，只有畫面回饋）
+export function buzz(){
+  try { if (Platform.OS === 'web' && navigator.vibrate) navigator.vibrate(8); } catch {}
+}
+
+function tactile(variant, pressed, c, dark){
+  if (Platform.OS !== 'web') return { opacity: pressed ? 0.85 : 1 };
+  const look = (top, bottom, raised) => pressed
+    ? { backgroundImage: `linear-gradient(180deg, ${bottom} 0%, ${top} 100%)`, boxShadow: raised.pressed }
+    : { backgroundImage: `linear-gradient(180deg, ${top} 0%, ${bottom} 100%)`, boxShadow: raised.rest };
+  const sh = (color, a) => ({
+    rest: `0 4px 10px rgba(${color},${a}), 0 1px 2px rgba(${color},${a + 0.04}), inset 0 1px 0 rgba(255,255,255,${dark ? 0.10 : 0.18}), inset 0 -1px 0 rgba(0,0,0,0.06)`,
+    pressed: `inset 0 2px 6px rgba(0,0,0,${dark ? 0.55 : 0.35})`,
+  });
+  switch (variant) {
+    case 'solid':  return dark ? look('#ffffff', '#d9d9de', sh('0,0,0', 0.5)) : look('#3a3a41', '#141417', sh('15,15,25', 0.22));
+    case 'danger': return dark ? look('#f98b8b', '#ef5a5a', sh('0,0,0', 0.5)) : look('#ef4444', '#c81e1e', sh('200,30,30', 0.28));
+    case 'soft': return pressed
+      ? { backgroundImage: dark ? 'linear-gradient(180deg,#1b1b1f,#25252a)' : 'linear-gradient(180deg,#e6e6eb,#f1f1f4)', boxShadow: `inset 0 2px 5px rgba(0,0,0,${dark ? 0.55 : 0.14})` }
+      : { backgroundImage: dark ? 'linear-gradient(180deg,#34343a,#222227)' : 'linear-gradient(180deg,#ffffff,#ececf0)',
+          boxShadow: dark ? '0 3px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)' : '0 3px 8px rgba(15,15,25,0.10), 0 1px 2px rgba(15,15,25,0.08), inset 0 1px 0 #ffffff' };
+    case 'card': return pressed ? { boxShadow: `inset 0 2px 8px rgba(0,0,0,${dark ? 0.5 : 0.09})` } : null;
+    default: return pressed ? { backgroundColor: c.bg, boxShadow: `inset 0 1px 3px rgba(0,0,0,${dark ? 0.5 : 0.12})` } : null; // ghost
+  }
+}
+
+// 按下的狀態自己管理（按下 onPressIn → 凹下去，放開 onPressOut → 彈回來），手機網頁上反應最穩定
+export function Press({ variant = 'ghost', style, children, onPressIn, onPressOut, ...rest }){
+  const c = useTheme();
+  const dark = useColorScheme() === 'dark';
+  const [pressed, setPressed] = useState(false);
+  return (
+    <Pressable {...rest}
+      onPressIn={(e) => { setPressed(true); buzz(); onPressIn && onPressIn(e); }}
+      onPressOut={(e) => { setPressed(false); onPressOut && onPressOut(e); }}
+      style={[
+        style,
+        tactile(variant, pressed, c, dark),
+        { transform: [{ scale: pressed ? SCALE[variant] || 0.96 : 1 }] },
+        Platform.OS === 'web' ? { transitionProperty: 'transform, box-shadow', transitionDuration: '120ms', transitionTimingFunction: 'ease-out' } : null,
+      ]}>
+      {children}
+    </Pressable>
+  );
+}
 
 export function Card({ children, style }){
   const c = useTheme();
@@ -17,12 +72,12 @@ export function Btn({ title, onPress, secondary, small, style }){
   const c = useTheme();
   const primary = !secondary;
   return (
-    <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={[{
+    <Press variant={primary ? 'solid' : 'soft'} onPress={onPress} accessibilityRole="button" style={[{
       borderRadius: 12, paddingVertical: small ? 10 : 13, paddingHorizontal: 16, alignItems: 'center',
-      backgroundColor: primary ? c.solid : c.surface2, borderWidth: primary ? 0 : 1.5, borderColor: c.border,
+      backgroundColor: primary ? c.solid : c.surface2, borderWidth: primary ? 0 : 1, borderColor: c.border,
     }, style]}>
       <Text style={{ color: primary ? c.solidInk : c.text, fontWeight: '700', fontSize: small ? 13.5 : 15 }}>{title}</Text>
-    </TouchableOpacity>
+    </Press>
   );
 }
 
@@ -95,8 +150,8 @@ export function Reason({ level, children, first }){
 export function TextBtn({ title, onPress }){
   const c = useTheme();
   return (
-    <TouchableOpacity onPress={onPress} hitSlop={6} activeOpacity={0.6} style={{ paddingVertical: 6, paddingHorizontal: 4 }}>
+    <Press variant="ghost" onPress={onPress} hitSlop={6} accessibilityRole="button" style={{ paddingVertical: 6, paddingHorizontal: 8, marginHorizontal: -4, borderRadius: 8 }}>
       <Text style={{ color: c.primary, fontSize: 13, fontWeight: '700' }}>{title}</Text>
-    </TouchableOpacity>
+    </Press>
   );
 }

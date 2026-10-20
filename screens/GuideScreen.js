@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
 import Icon from '../icons';
-import { SubText } from '../components';
+import { SubText, Press } from '../components';
 import { GUIDE, GUIDE_CATS } from '../data';
 
 function SectionTitle({ children, color }){
@@ -42,7 +42,7 @@ function Item({ g }){
   const [open, setOpen] = useState(false);
   return (
     <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: open ? c.primary : c.border, borderRadius: 14, marginBottom: 10, overflow: 'hidden' }}>
-      <TouchableOpacity activeOpacity={0.7} onPress={() => setOpen(o => !o)} style={{ flexDirection: 'row', alignItems: 'center', padding: 12 }}>
+      <Press variant="card" onPress={() => setOpen(o => !o)} accessibilityRole="button" style={{ flexDirection: 'row', alignItems: 'center', padding: 12 }}>
         <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
           <Icon name={g.icon} size={21} color={c.primary} strokeWidth={1.9} />
         </View>
@@ -51,7 +51,7 @@ function Item({ g }){
           <Text numberOfLines={open ? undefined : 1} style={{ fontSize: 12.5, color: c.textDim, marginTop: 3, lineHeight: 18 }}>{g.sum}</Text>
         </View>
         <Text style={{ color: c.textFaint, fontSize: 18, marginLeft: 8, transform: [{ rotate: open ? '90deg' : '0deg' }] }}>›</Text>
-      </TouchableOpacity>
+      </Press>
       {open && (
         <View style={{ paddingHorizontal: 14, paddingBottom: 12, borderTopWidth: 1, borderTopColor: c.border }}>
           <SectionTitle color={c.primary}>常見說法</SectionTitle>
@@ -69,13 +69,13 @@ function Item({ g }){
 function Chip({ label, count, active, onPress }){
   const c = useTheme();
   return (
-    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{
+    <Press variant={active ? 'solid' : 'soft'} onPress={onPress} accessibilityRole="button" style={{
       flexDirection: 'row', alignItems: 'center', paddingVertical: 7, paddingHorizontal: 13, borderRadius: 999, marginRight: 8,
       backgroundColor: active ? c.primary : c.surface, borderWidth: 1, borderColor: active ? c.primary : c.border,
     }}>
       <Text style={{ fontSize: 13, fontWeight: '700', color: active ? c.primaryInk : c.text }}>{label}</Text>
       <Text style={{ fontSize: 12, fontWeight: '700', marginLeft: 5, color: active ? c.primaryInk : c.textFaint }}>{count}</Text>
-    </TouchableOpacity>
+    </Press>
   );
 }
 
