@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, Image, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text, TextInput, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
-import { Card, Btn, Label, SubText, Note, Verdict } from '../components';
+import { Card, Btn, Label, SubText, Note, Verdict, Reason, SectionTitle, TextBtn } from '../components';
 import { scanMessage } from '../analyze';
 import { ocrSupported, pickImage, recognizeImage } from '../ocr';
 
@@ -36,37 +36,21 @@ export default function MessageScreen(){
     }
   };
 
+  const clear = () => { setText(''); setRes(null); setOcrErr(''); if (shot) URL.revokeObjectURL(shot); setShot(null); };
+
   return (
     <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-      <SubText style={{ marginBottom: 14 }}>把整段訊息貼上來{ocrSupported ? ',或直接上傳對話截圖' : ''},幫你標出詐騙常用的關鍵字與話術類型。</SubText>
+      <SubText style={{ marginBottom: 12 }}>{ocrSupported ? '上傳對話截圖或貼上訊息' : '把整段訊息貼上來'},幫你標出詐騙常用的關鍵字與話術類型。</SubText>
 
       <Card>
         {ocrSupported && (
           <>
-            <Btn secondary title={ocr ? '辨識中…' : '📷  上傳對話截圖'} onPress={ocr ? undefined : fromScreenshot} />
-            {shot && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 11, backgroundColor: c.surface2, borderWidth: 1, borderColor: c.border, borderRadius: 11, padding: 8 }}>
-                <Image source={{ uri: shot }} style={{ width: 56, height: 96, borderRadius: 6, backgroundColor: c.border }} resizeMode="cover" />
-                <View style={{ flex: 1, marginLeft: 11 }}>
-                  {ocr ? (
-                    <>
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <ActivityIndicator size="small" color={c.primary} />
-                        <Text style={{ marginLeft: 8, color: c.text, fontSize: 13.5, fontWeight: '700' }}>{ocr.label}</Text>
-                      </View>
-                      <View style={{ height: 6, borderRadius: 3, backgroundColor: c.border, marginTop: 9, overflow: 'hidden' }}>
-                        <View style={{ height: 6, width: ocr.pct + '%', backgroundColor: c.primary }} />
-                      </View>
-                    </>
-                  ) : ocrErr ? (
-                    <Text style={{ color: c.dangerInk, fontSize: 13 }}>{ocrErr}</Text>
-                  ) : (
-                    <Text style={{ color: c.textDim, fontSize: 13, lineHeight: 19 }}>已辨識截圖文字並分析。辨識可能有錯字,可在下方修正後再按「分析訊息」。</Text>
-                  )}
-                </View>
-              </View>
-            )}
-            <View style={{ height: 14 }} />
+            <UploadTile shot={shot} ocr={ocr} err={ocrErr} onPress={ocr ? undefined : fromScreenshot} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 14 }}>
+              <View style={{ flex: 1, height: 1, backgroundColor: c.border }} />
+              <Text style={{ marginHorizontal: 10, fontSize: 12, color: c.textFaint, fontWeight: '700' }}>或直接貼上文字</Text>
+              <View style={{ flex: 1, height: 1, backgroundColor: c.border }} />
+            </View>
           </>
         )}
         <Label>訊息內容</Label>
@@ -76,71 +60,110 @@ export default function MessageScreen(){
           placeholderTextColor={c.textFaint}
           style={{ borderWidth: 1.5, borderColor: c.border, backgroundColor: c.surface2, color: c.text, borderRadius: 12, padding: 12, fontSize: 15, minHeight: 100, textAlignVertical: 'top' }}
         />
-        <View style={{ height: 11 }} />
+        <View style={{ height: 12 }} />
         <Btn title="分析訊息" onPress={() => run()} />
-        <View style={{ flexDirection: 'row', gap: 9, marginTop: 11 }}>
-          <Btn style={{ flex: 1 }} small secondary title="貼範例詐騙訊息" onPress={() => { setText(SAMPLE); run(SAMPLE); }} />
-          <Btn style={{ flex: 1 }} small secondary title="清除" onPress={() => { setText(''); setRes(null); setOcrErr(''); if (shot) URL.revokeObjectURL(shot); setShot(null); }} />
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+          <TextBtn title="試試範例詐騙訊息" onPress={() => { setText(SAMPLE); run(SAMPLE); }} />
+          {(text || res || shot) ? <TextBtn title="清除" onPress={clear} /> : null}
         </View>
-
-        {res && (
-          <>
-            <Verdict level={res.level} emoji={res.emoji} label={res.label} meta={res.meta}>
-              {res.hitTypes.length > 0 && (
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
-                  {res.hitTypes.map((h, i) => (
-                    <View key={i} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: c.dangerSoft, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 11 }}>
-                      <Text style={{ color: c.dangerInk, fontWeight: '700', fontSize: 12.5 }}>{h.type}</Text>
-                      <View style={{ backgroundColor: c.danger, borderRadius: 999, marginLeft: 6, minWidth: 17, height: 17, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }}>
-                        <Text style={{ color: '#fff', fontSize: 11 }}>{h.found.length}</Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </Verdict>
-
-            <View style={{ backgroundColor: c.surface2, borderWidth: 1, borderColor: c.border, borderRadius: 11, padding: 12, marginTop: 14 }}>
-              <Text style={{ fontSize: 14, lineHeight: 23, color: c.text }}>
-                {res.segments.map((s, i) => s.hit
-                  ? <Text key={i} style={{ backgroundColor: c.warn, color: '#111', fontWeight: '700' }}>{s.text}</Text>
-                  : <Text key={i}>{s.text}</Text>)}
-              </Text>
-            </View>
-
-            {res.links.length > 0 && (
-              <View style={{ marginTop: 14 }}>
-                <Label>訊息裡的連結</Label>
-                {res.links.map((l, i) => (
-                  <View key={i} style={{ flexDirection: 'row', backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 11, padding: 10, marginTop: 6 }}>
-                    <Text style={{ marginRight: 9, fontSize: 15 }}>{l.emoji}</Text>
-                    <Text style={{ flex: 1, fontSize: 13.5, lineHeight: 20, color: c.text }}>
-                      <Text style={{ fontWeight: '700' }}>{l.label}</Text>{'\n'}
-                      <Text style={{ color: c.textDim, fontSize: 12.5 }}>{l.reg}{l.reasons.length ? ' — ' + (l.reasons.find(r => r.level === 'hi') || l.reasons[0]).text : ''}</Text>
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            )}
-
-            {res.hitTypes.length > 0 && (
-              <View style={{ marginTop: 14 }}>
-                {res.hitTypes.map((h, i) => (
-                  <View key={i} style={{ flexDirection: 'row', backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 11, padding: 10, marginTop: 9 }}>
-                    <Text style={{ marginRight: 9, fontSize: 15 }}>🔸</Text>
-                    <Text style={{ flex: 1, fontSize: 13.5, lineHeight: 20, color: c.text }}>
-                      <Text style={{ fontWeight: '700' }}>{h.type}</Text> — {h.tip}{'\n'}
-                      <Text style={{ color: c.textDim, fontSize: 12.5 }}>命中:{h.found.join('、')}</Text>
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </>
-        )}
       </Card>
+
+      {res && (
+        <Verdict level={res.level} label={res.label} meta={res.meta}>
+          {res.hitTypes.length > 0 && (
+            <>
+              <SectionTitle>命中的話術類型</SectionTitle>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7 }}>
+                {res.hitTypes.map((h, i) => (
+                  <View key={i} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: c.dangerSoft, borderRadius: 999, paddingVertical: 5, paddingLeft: 11, paddingRight: 5 }}>
+                    <Text style={{ color: c.dangerInk, fontWeight: '700', fontSize: 12.5 }}>{h.type}</Text>
+                    <View style={{ backgroundColor: c.danger, borderRadius: 999, marginLeft: 6, minWidth: 18, height: 18, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }}>
+                      <Text style={{ color: '#fff', fontSize: 11, fontWeight: '800' }}>{h.found.length}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </>
+          )}
+
+          <SectionTitle>原文標示</SectionTitle>
+          <View style={{ backgroundColor: c.surface2, borderWidth: 1, borderColor: c.border, borderRadius: 12, padding: 12 }}>
+            <Text style={{ fontSize: 14, lineHeight: 23, color: c.text }}>
+              {res.segments.map((s, i) => s.hit
+                ? <Text key={i} style={{ backgroundColor: c.warnSoft, color: c.warnInk, fontWeight: '800' }}>{s.text}</Text>
+                : <Text key={i}>{s.text}</Text>)}
+            </Text>
+          </View>
+
+          {res.links.length > 0 && (
+            <>
+              <SectionTitle>訊息裡的連結</SectionTitle>
+              {res.links.map((l, i) => (
+                <Reason key={i} first={i === 0} level={LINK_LEVEL[l.level] || 'info'}>
+                  <Text style={{ fontWeight: '800' }}>{l.reg}</Text>{'  '}{l.label}{'\n'}
+                  <Text style={{ color: c.textDim, fontSize: 12.5 }}>{l.reasons.length ? (l.reasons.find(r => r.level === 'hi') || l.reasons[0]).text : '沒有命中已知的釣魚特徵。'}</Text>
+                </Reason>
+              ))}
+            </>
+          )}
+
+          {res.hitTypes.length > 0 && (
+            <>
+              <SectionTitle>為什麼可疑</SectionTitle>
+              {res.hitTypes.map((h, i) => (
+                <View key={i} style={{ paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: c.border }}>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: c.text }}>{h.type}</Text>
+                  <Text style={{ fontSize: 13, lineHeight: 20, color: c.textDim, marginTop: 3 }}>{h.tip}</Text>
+                  <Text style={{ fontSize: 12, color: c.textFaint, marginTop: 4 }}>命中:{h.found.join('、')}</Text>
+                </View>
+              ))}
+            </>
+          )}
+        </Verdict>
+      )}
 
       <Note>偵測的是「詐騙常見的語言模式」,不代表對特定對象的結論。{'\n'}正常訊息也可能命中少數關鍵字,請搭配情境判斷。</Note>
     </ScrollView>
+  );
+}
+
+const LINK_LEVEL = { danger: 'hi', warn: 'mid', low: 'lo', ok: 'info' };
+
+// 上傳截圖區塊：還沒選圖時是虛線框；選了之後顯示縮圖與辨識進度
+function UploadTile({ shot, ocr, err, onPress }){
+  const c = useTheme();
+  return (
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress} accessibilityRole="button" style={{
+      flexDirection: 'row', alignItems: 'center', borderRadius: 14, borderWidth: 1.5, borderStyle: 'dashed',
+      borderColor: c.primary, backgroundColor: c.primarySoft, padding: 12,
+    }}>
+      {shot ? (
+        <Image source={{ uri: shot }} style={{ width: 48, height: 80, borderRadius: 8, backgroundColor: c.border }} resizeMode="cover" />
+      ) : (
+        <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: c.surface, alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 22 }}>📷</Text>
+        </View>
+      )}
+      <View style={{ flex: 1, marginLeft: 12 }}>
+        {ocr ? (
+          <>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <ActivityIndicator size="small" color={c.primary} />
+              <Text style={{ marginLeft: 8, color: c.text, fontSize: 14, fontWeight: '800' }}>{ocr.label}</Text>
+            </View>
+            <View style={{ height: 6, borderRadius: 3, backgroundColor: c.surface, marginTop: 9, overflow: 'hidden' }}>
+              <View style={{ height: 6, width: ocr.pct + '%', backgroundColor: c.primary }} />
+            </View>
+          </>
+        ) : (
+          <>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: c.primary }}>{shot ? '換一張截圖' : '上傳對話截圖'}</Text>
+            <Text style={{ fontSize: 12.5, color: err ? c.dangerInk : c.textDim, marginTop: 3, lineHeight: 18 }}>
+              {err || (shot ? '已辨識並分析。辨識可能有錯字,可在下方修正後重新分析。' : '自動辨識文字並分析,截圖不會上傳到任何地方')}
+            </Text>
+          </>
+        )}
+      </View>
+    </TouchableOpacity>
   );
 }

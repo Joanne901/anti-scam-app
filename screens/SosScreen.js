@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Linking } from 'react-native';
 import { useTheme } from '../theme';
 import { SubText, Note } from '../components';
@@ -21,25 +21,23 @@ function CallButton({ num, label, solid }){
   );
 }
 
-// 時間軸上的一步：左邊圓圈可點來打勾，右邊是內容
-function Step({ n, s, done, last, onToggle }){
+// 時間軸上的一步：左邊編號圓圈，右邊是內容
+function Step({ n, s, last }){
   const c = useTheme();
   return (
     <View style={{ flexDirection: 'row' }}>
       <View style={{ alignItems: 'center', width: 30, marginRight: 12 }}>
-        <TouchableOpacity onPress={onToggle} hitSlop={8} activeOpacity={0.7} style={{
+        <View style={{
           width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
-          backgroundColor: done ? c.ok : c.surface, borderWidth: 2, borderColor: done ? c.ok : c.primary,
+          backgroundColor: c.primary,
         }}>
-          <Text style={{ color: done ? '#fff' : c.primary, fontWeight: '900', fontSize: done ? 14 : 13 }}>{done ? '✓' : n}</Text>
-        </TouchableOpacity>
+          <Text style={{ color: c.primaryInk, fontWeight: '900', fontSize: 13 }}>{n}</Text>
+        </View>
         {!last && <View style={{ flex: 1, width: 2, backgroundColor: c.border, marginVertical: 3 }} />}
       </View>
       <View style={{ flex: 1, paddingBottom: last ? 4 : 18 }}>
-        <TouchableOpacity activeOpacity={0.7} onPress={onToggle}>
-          <Text style={{ fontWeight: '800', fontSize: 15, color: done ? c.textFaint : c.text, marginTop: 3, textDecorationLine: done ? 'line-through' : 'none' }}>{s.t}</Text>
-          <Text style={{ fontSize: 13, color: c.textDim, lineHeight: 20, marginTop: 4 }}>{s.d}</Text>
-        </TouchableOpacity>
+        <Text style={{ fontWeight: '800', fontSize: 15, color: c.text, marginTop: 3 }}>{s.t}</Text>
+        <Text style={{ fontSize: 13, color: c.textDim, lineHeight: 20, marginTop: 4 }}>{s.d}</Text>
         {s.call && (
           <TouchableOpacity onPress={() => call(s.call)} activeOpacity={0.85} style={{
             alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', marginTop: 9,
@@ -56,9 +54,6 @@ function Step({ n, s, done, last, onToggle }){
 
 export default function SosScreen(){
   const c = useTheme();
-  const [done, setDone] = useState({});
-  const toggle = (i) => setDone(d => ({ ...d, [i]: !d[i] }));
-  const doneCount = STEPS.filter((_, i) => done[i]).length;
 
   return (
     <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
@@ -73,12 +68,7 @@ export default function SosScreen(){
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-        <Text style={{ fontSize: 15, fontWeight: '900', color: c.text, flex: 1 }}>處理步驟</Text>
-        <Text style={{ fontSize: 12.5, color: doneCount ? c.ok : c.textFaint, fontWeight: '700' }}>
-          {doneCount ? `已完成 ${doneCount} / ${STEPS.length}` : '做完可點圓圈打勾'}
-        </Text>
-      </View>
+      <Text style={{ fontSize: 15, fontWeight: '900', color: c.text, marginBottom: 12 }}>處理步驟</Text>
 
       {STEP_PHASES.map(ph => {
         const items = STEPS.map((s, i) => ({ s, i })).filter(x => x.s.p === ph.key);
@@ -89,7 +79,7 @@ export default function SosScreen(){
               <Text style={{ fontSize: 12, color: c.textFaint, marginLeft: 8 }}>{ph.hint}</Text>
             </View>
             {items.map(({ s, i }, k) => (
-              <Step key={i} n={i + 1} s={s} done={!!done[i]} last={k === items.length - 1} onToggle={() => toggle(i)} />
+              <Step key={i} n={i + 1} s={s} last={k === items.length - 1} />
             ))}
           </View>
         );
