@@ -15,7 +15,7 @@ import { InstallGuide } from './install';
 import { isStandalone, deviceKind } from './pwa';
 
 const Tab = createBottomTabNavigator();
-const TAB_BAR_HEIGHT = 64;
+const TAB_BAR_HEIGHT = 54;
 const STANDALONE = Platform.OS === 'web' && isStandalone();
 // 從主畫面打開時沒有瀏覽器網址列，分頁列會直接貼著手機狀態列（時間、電量），往下留一點空間
 const STANDALONE_GAP = STANDALONE ? 14 : 0;
@@ -27,12 +27,12 @@ function statusBarHeight(insetTop){
   return deviceKind() === 'ios' ? 47 : 0; // 讀不到 safe-area 時的保守值（Android 的狀態列由系統依 theme_color 上色）
 }
 
+// 分頁列只放圖示、不放文字也不上色：目前所在的分頁圖示亮一點、大一點，其他的淡一點
 const TabIcon = (emoji) => ({ focused }) => (
-  <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.6 }}>{emoji}</Text>
+  <Text style={{ fontSize: focused ? 26 : 23, opacity: focused ? 1 : 0.4 }}>{emoji}</Text>
 );
 
-// 分頁按鈕：選中的分頁底下加一條主色底線
-const TabButton = (c) => ({ children, style, onPress, onLongPress, ...rest }) => {
+const TabButton = () => ({ children, style, onPress, onLongPress, ...rest }) => {
   const selected = rest['aria-selected'] ?? rest.accessibilityState?.selected;
   return (
     <Pressable
@@ -40,7 +40,8 @@ const TabButton = (c) => ({ children, style, onPress, onLongPress, ...rest }) =>
       onLongPress={onLongPress}
       accessibilityRole="tab"
       accessibilityState={{ selected }}
-      style={[style, { borderBottomWidth: 3, borderBottomColor: selected ? c.primary : 'transparent' }]}
+      accessibilityLabel={rest.accessibilityLabel ?? rest['aria-label']}
+      style={style}
     >
       {children}
     </Pressable>
@@ -67,21 +68,20 @@ function Tabs(){
           // 分頁列放在上方：手機瀏覽器底部的工具列會遮住下方分頁列
           screenOptions={{
             tabBarPosition: 'top',
-            tabBarLabelPosition: 'below-icon',
+            tabBarShowLabel: false,
             headerShown: false,
             tabBarActiveTintColor: c.primary,
             tabBarInactiveTintColor: c.textFaint,
             tabBarStyle: { height: TAB_BAR_HEIGHT + top, paddingTop: top, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border, elevation: 0, shadowOpacity: 0 },
-            tabBarItemStyle: { paddingTop: 4, paddingBottom: 6 },
-            tabBarLabelStyle: { fontSize: 13, lineHeight: 18, fontWeight: '800', marginTop: 2, flexShrink: 0 },
+            tabBarItemStyle: { justifyContent: 'center' },
             tabBarActiveBackgroundColor: c.surface,
-            tabBarButton: TabButton(c),
+            tabBarButton: TabButton(),
           }}
         >
-          <Tab.Screen name="查網址" component={UrlScreen} options={{ tabBarIcon: TabIcon('🔗') }} />
-          <Tab.Screen name="驗訊息" component={MessageScreen} options={{ tabBarIcon: TabIcon('💬') }} />
-          <Tab.Screen name="圖鑑" component={GuideScreen} options={{ tabBarIcon: TabIcon('📖') }} />
-          <Tab.Screen name="緊急求助" component={SosScreen} options={{ tabBarIcon: TabIcon('🆘') }} />
+          <Tab.Screen name="查網址" component={UrlScreen} options={{ tabBarIcon: TabIcon('🔗'), tabBarAccessibilityLabel: '查網址' }} />
+          <Tab.Screen name="驗訊息" component={MessageScreen} options={{ tabBarIcon: TabIcon('💬'), tabBarAccessibilityLabel: '驗訊息' }} />
+          <Tab.Screen name="圖鑑" component={GuideScreen} options={{ tabBarIcon: TabIcon('📖'), tabBarAccessibilityLabel: '圖鑑' }} />
+          <Tab.Screen name="緊急求助" component={SosScreen} options={{ tabBarIcon: TabIcon('🆘'), tabBarAccessibilityLabel: '緊急求助' }} />
         </Tab.Navigator>
       </NavigationContainer>
       {statusH > 0 && (
