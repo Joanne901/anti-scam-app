@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { useTheme } from './theme';
-import { checkForUpdate, onAppVisible, installTipDismissed, dismissInstallTip } from './pwa';
+import { checkForUpdate, onAppVisible, installTipDismissed, dismissInstallTip, onInstallAvailable, canPromptInstall } from './pwa';
 import { canShowInstall, startInstall } from './install';
 
 const UPDATE_INTERVAL = 5 * 60 * 1000;
@@ -49,18 +49,20 @@ function useUpdate(){
 
 function useInstallTip(){
   const [visible, setVisible] = useState(false);
+  const [oneTap, setOneTap] = useState(canPromptInstall()); // Android 瀏覽器允許一鍵安裝
   useEffect(() => {
-    if (!canShowInstall() || installTipDismissed()) return;
+    const off = onInstallAvailable(() => setOneTap(canPromptInstall()));
+    if (!canShowInstall() || installTipDismissed()) return off;
     const t = setTimeout(() => setVisible(true), 2500);
-    return () => clearTimeout(t);
+    return () => { clearTimeout(t); off(); };
   }, []);
   const close = () => { dismissInstallTip(); setVisible(false); };
-  return { visible, close };
+  return { visible, oneTap, close };
 }
 
 export default function Banners({ top }){
   const { update, dismiss } = useUpdate();
-  const { visible: showInstall, close } = useInstallTip();
+  const { visible: showInstall, oneTap, close } = useInstallTip();
   if (Platform.OS !== 'web') return null;
 
   let toast = null;
@@ -71,7 +73,9 @@ export default function Banners({ top }){
     );
   } else if (showInstall) {
     toast = (
-      <Toast icon="📲" title="加到主畫面" body="像 App 一樣,從手機桌面直接打開。" action="加到主畫面"
+      <Toast icon="📲" title="加到主畫面"
+        body={oneTap ? '一鍵安裝到主畫面,像 App 一樣使用。' : '像 App 一樣,從手機桌面直接打開。'}
+        action={oneTap ? '安裝' : '加到主畫面'}
         onAction={() => { close(); startInstall(); }} onClose={close} />
     );
   }

@@ -161,8 +161,8 @@ export function InstallGuide(){
 // 頁面上的按鈕（iOS、Android 都是同一顆）
 export function InstallButton({ style }){
   const c = useTheme();
-  const [, force] = useState(0);
-  useEffect(() => onInstallAvailable(() => force(n => n + 1)), []);
+  const [oneTap, setOneTap] = useState(canPromptInstall());
+  useEffect(() => onInstallAvailable(() => setOneTap(canPromptInstall())), []);
   if (!canShowInstall()) return null;
   return (
     <TouchableOpacity onPress={startInstall} activeOpacity={0.85} style={[{
@@ -173,7 +173,7 @@ export function InstallButton({ style }){
         <Text style={{ fontSize: 22 }}>📲</Text>
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 15, fontWeight: '900', color: c.primary }}>加到主畫面</Text>
+        <Text style={{ fontSize: 15, fontWeight: '900', color: c.primary }}>{oneTap ? '一鍵安裝到主畫面' : '加到主畫面'}</Text>
         <Text style={{ fontSize: 12.5, color: c.textDim, marginTop: 2 }}>像 App 一樣,從手機桌面直接打開</Text>
       </View>
       <Text style={{ fontSize: 20, color: c.primary, marginLeft: 8 }}>›</Text>
