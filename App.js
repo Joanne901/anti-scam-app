@@ -12,18 +12,25 @@ import GuideScreen from './screens/GuideScreen';
 import SosScreen from './screens/SosScreen';
 import Banners from './banners';
 import { InstallGuide } from './install';
-import { isStandalone } from './pwa';
+import { isStandalone, deviceKind } from './pwa';
 
 const Tab = createBottomTabNavigator();
 const TAB_BAR_HEIGHT = 64;
-// 從主畫面打開時沒有瀏覽器網址列，分頁列會直接貼著手機狀態列（時間、電量），往下留一點空間
-const STANDALONE_GAP = Platform.OS === 'web' && isStandalone() ? 14 : 0;
+const STANDALONE = Platform.OS === 'web' && isStandalone();
+
+// 頁首上緣要留的空間：從主畫面打開時，藍色頁首會延伸到手機狀態列（時間、電量）底下，
+// 用 safe-area 讓出狀態列，再多留一點讓分頁不要貼著狀態列
+function headerTop(insetTop){
+  if (!STANDALONE) return insetTop;
+  if (insetTop > 0) return insetTop + 4;
+  return deviceKind() === 'ios' ? 50 : 14; // 讀不到 safe-area 時的保守值
+}
 
 const TabIcon = (emoji) => ({ focused }) => (
-  <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.6 }}>{emoji}</Text>
+  <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.75 }}>{emoji}</Text>
 );
 
-// 分頁按鈕：選中的分頁底下加一條主色底線
+// 分頁按鈕：選中的分頁底下有一條短的白色圓角底線
 const TabButton = (c) => ({ children, style, onPress, onLongPress, ...rest }) => {
   const selected = rest['aria-selected'] ?? rest.accessibilityState?.selected;
   return (
@@ -32,16 +39,17 @@ const TabButton = (c) => ({ children, style, onPress, onLongPress, ...rest }) =>
       onLongPress={onLongPress}
       accessibilityRole="tab"
       accessibilityState={{ selected }}
-      style={[style, { borderBottomWidth: 3, borderBottomColor: selected ? c.primary : 'transparent' }]}
+      style={style}
     >
       {children}
+      <View style={{ position: 'absolute', bottom: 0, alignSelf: 'center', width: 26, height: 3, borderRadius: 2, backgroundColor: selected ? c.headerInk : 'transparent' }} />
     </Pressable>
   );
 };
 
 function Tabs(){
   const insets = useSafeAreaInsets();
-  const top = insets.top + STANDALONE_GAP;
+  const top = headerTop(insets.top);
   const scheme = useColorScheme();
   const c = useTheme();
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
@@ -60,12 +68,14 @@ function Tabs(){
             tabBarPosition: 'top',
             tabBarLabelPosition: 'below-icon',
             headerShown: false,
-            tabBarActiveTintColor: c.primary,
-            tabBarInactiveTintColor: c.textFaint,
-            tabBarStyle: { height: TAB_BAR_HEIGHT + top, paddingTop: top, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border, elevation: 0, shadowOpacity: 0 },
-            tabBarItemStyle: { paddingTop: 4, paddingBottom: 6 },
+            tabBarActiveTintColor: c.headerInk,
+            tabBarInactiveTintColor: c.headerDim,
+            tabBarStyle: { height: TAB_BAR_HEIGHT + top, paddingTop: top, backgroundColor: c.header, borderBottomWidth: 0, elevation: 0, shadowOpacity: 0 },
+            tabBarItemStyle: { paddingTop: 2, paddingBottom: 9 },
+            // 內容區像一張圓角卡片疊在藍色頁首上
+            sceneStyle: { backgroundColor: c.header },
             tabBarLabelStyle: { fontSize: 13, lineHeight: 18, fontWeight: '800', marginTop: 2, flexShrink: 0 },
-            tabBarActiveBackgroundColor: c.surface,
+            tabBarActiveBackgroundColor: c.header,
             tabBarButton: TabButton(c),
           }}
         >

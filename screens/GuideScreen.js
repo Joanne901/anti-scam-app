@@ -84,7 +84,7 @@ export default function GuideScreen(){
   const cats = GUIDE_CATS.filter(k => cat === 'all' || k.key === cat);
 
   return (
-    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
+    <ScrollView style={{ backgroundColor: c.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
       <SubText style={{ marginBottom: 12 }}>認得話術,就不容易上當。點開看每種手法的破綻與正確做法。</SubText>
 
       <View style={{ backgroundColor: c.surface, borderRadius: 14, borderWidth: 1, borderColor: c.border, padding: 13, marginBottom: 14, flexDirection: 'row' }}>

@@ -56,7 +56,7 @@ export default function SosScreen(){
   const c = useTheme();
 
   return (
-    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
+    <ScrollView style={{ backgroundColor: c.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
       <SubText style={{ marginBottom: 12 }}>別慌,照順序做。愈早處理,擋下損失的機會愈大。</SubText>
 
       <View style={{ backgroundColor: c.dangerSoft, borderRadius: 16, borderWidth: 1, borderColor: c.danger, padding: 15, marginBottom: 18 }}>

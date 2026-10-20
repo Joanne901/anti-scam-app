@@ -40,7 +40,7 @@ export default function MessageScreen(){
   const clear = () => { setText(''); setRes(null); setOcrErr(''); if (shot) URL.revokeObjectURL(shot); setShot(null); };
 
   return (
-    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+    <ScrollView style={{ backgroundColor: c.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
       <SubText style={{ marginBottom: 12 }}>{ocrSupported ? '上傳對話截圖或貼上訊息' : '把整段訊息貼上來'},幫你標出詐騙常用的關鍵字與話術類型。</SubText>
 
       <Card>

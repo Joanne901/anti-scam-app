@@ -49,7 +49,7 @@ export default function UrlScreen(){
   };
 
   return (
-    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+    <ScrollView style={{ backgroundColor: c.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
       <SubText style={{ marginBottom: 12 }}>貼上可疑連結,幫你拆解網域、判斷風險,並說明為什麼。</SubText>
 
       <Card>
