@@ -181,7 +181,7 @@ export function scanMessage(text){
   const segments = buildSegments(text, words);
   const total = words.length;
 
-  const strongSet = ['假冒檢警 / 監管帳戶', '要求敏感資料', '網拍 / 賣貨便金流釣魚', '解除分期付款', '假客服 / 簽署物流金流協議'];
+  const strongSet = ['假冒檢警 / 監管帳戶', '要求敏感資料', '網拍 / 賣貨便金流釣魚', '解除分期付款', '假客服 / 簽署物流金流協議', '遊戲點數 / 超商代碼', '假冒銀行 / 盜刷通知', '猜猜我是誰 / 假親友'];
   const strong = hitTypes.some(h => strongSet.includes(h.type));
 
   let level, emoji, label, meta;
