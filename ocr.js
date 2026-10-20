@@ -225,7 +225,8 @@ function joinLines(lines){
       const h = Math.min(prev.h, l.h);
       const gap = l.bbox.y0 - prev.bbox.y1;
       const aligned = Math.abs(l.bbox.x0 - prev.bbox.x0) < h * 1.5;
-      if (gap < h * 0.6 && aligned && !/[。！？!?]$/.test(prev.text)) {
+      // 有網址的行不接，避免網址和下一行的中文黏在一起
+      if (gap < h * 0.6 && aligned && !/[。！？!?]$/.test(prev.text) && !HAS_LINK.test(prev.text) && !HAS_LINK.test(l.text)) {
         prev.text += (/[A-Za-z0-9]$/.test(prev.text) && /^[A-Za-z0-9]/.test(l.text) ? ' ' : '') + l.text;
         prev.bbox = { ...prev.bbox, y1: l.bbox.y1 };
         prev.h = l.h;
