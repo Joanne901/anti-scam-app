@@ -1,23 +1,18 @@
-// 截圖文字辨識（OCR）：全部在使用者自己的瀏覽器裡跑，圖片不會上傳到任何伺服器。只支援網頁版。
+// 截圖文字辨識（OCR）：全部在使用者自己的手機瀏覽器裡跑，圖片不會上傳到任何伺服器。只支援網頁版。
 //
-// 主要引擎：PaddleOCR（PP-OCRv5，繁簡中文都認得，比 Tesseract 準很多），在背景執行緒跑，畫面不會卡住。
-//   程式從 jsDelivr 載入，模型放在本站 public/models/（Apache-2.0，來自 PaddlePaddle 官方）。
-//   第一次使用要下載約 30MB，之後瀏覽器會快取。
-// 備用引擎：Tesseract.js，PaddleOCR 載入失敗（例如很舊的瀏覽器）時才用。
+// 主要引擎：PaddleOCR PP-OCRv5 mobile（繁簡中文都認得，比 Tesseract 準很多），
+//   在背景執行緒 public/ocr-worker.js 裡用 onnxruntime-web 跑，畫面不會卡住。
+//   模型放在本站 public/models/（Apache-2.0，PaddlePaddle 官方），第一次下載後存在手機裡。
+// 備用引擎：Tesseract.js，PaddleOCR 無法啟動（例如很舊的瀏覽器）時才用。
 import { Platform } from 'react-native';
 
 const TESSERACT_SRC = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
-const PADDLE_SDK = 'https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/+esm';
-// SDK 內建的背景執行緒程式（已把 OpenCV、ONNX Runtime 打包在裡面），版本要和上面一致
-const PADDLE_WORKER = 'https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/dist/assets/worker-entry-C9UNuyOJ.js';
-// 必須和 SDK 背景執行緒內建的 onnxruntime-web 版本相同（0.4.2 內建 1.24.3）
-const ORT_WASM = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/';
-const OPENCC = 'https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/esm/cn2t.js';
 
 export const ocrSupported = Platform.OS === 'web';
 
-// 用 Function 包一層，讓打包工具不要去解析 CDN 網址
-const importUrl = new Function('u', 'return import(u)');
+// 逾時保護：卡住就停掉背景執行緒並回報錯誤，不會一直轉圈
+const STALL_MS = 60000;      // 準備階段超過這麼久沒有任何進度
+const OCR_TIMEOUT_MS = 90000; // 單張截圖辨識最久等這麼久
 
 // 本站根目錄（GitHub Pages 上是 /anti-scam-app/），從載入的程式檔位置推算
 function siteBase(){
@@ -25,54 +20,78 @@ function siteBase(){
   return s ? s.src.split('_expo/')[0] : new URL('/', window.location.href).href;
 }
 
-let paddlePromise = null;
-function getPaddle(){
-  if (!paddlePromise) {
-    paddlePromise = (async () => {
-      const { PaddleOCR } = await importUrl(PADDLE_SDK);
-      // 背景執行緒必須和網頁同源，所以用 blob 包一層再去載入 CDN 上的程式
-      const workerUrl = URL.createObjectURL(new Blob([`import '${PADDLE_WORKER}';`], { type: 'text/javascript' }));
-      const base = siteBase();
-      const ocr = await PaddleOCR.create({
-        textDetectionModelName: 'PP-OCRv5_mobile_det',
-        textDetectionModelAsset: { url: base + 'models/PP-OCRv5_mobile_det_onnx_infer.tar' },
-        textRecognitionModelName: 'PP-OCRv5_mobile_rec',
-        textRecognitionModelAsset: { url: base + 'models/PP-OCRv5_mobile_rec_onnx_infer.tar' },
-        worker: { createWorker: () => new Worker(workerUrl, { type: 'module' }) },
-        ortOptions: { backend: 'wasm', wasmPaths: ORT_WASM },
-      });
-      await ocr.initialize();
-      return ocr;
-    })().catch(e => { paddlePromise = null; throw e; });
-  }
-  return paddlePromise;
+let worker = null;
+let initPromise = null;
+let nextId = 1;
+const pending = new Map();
+let progressListener = null;
+let lastProgress = 0; // 最後一次收到背景執行緒進度的時間，用來判斷有沒有卡住
+
+function resetWorker(reason){
+  if (worker) worker.terminate();
+  worker = null;
+  initPromise = null;
+  for (const p of pending.values()) p.reject(new Error(reason));
+  pending.clear();
 }
 
-// PaddleOCR 偶爾會吐出簡體字（例如「银行、冻结」），轉成台灣繁體。
-// 用 cn→tw（只換字形、不換用語），所以詐團的「賬號、信息」會保留，偵測才抓得到。
-let ccPromise = null;
-function getConverter(){
-  if (!ccPromise) {
-    ccPromise = importUrl(OPENCC).then(m => {
-      const conv = m.default.Converter({ from: 'cn', to: 'tw' });
-      return (s) => {
-        const o = conv(s);
-        if (o.length !== s.length) return o;
-        // OpenCC 會把「台」轉成「臺」，台灣慣用「台」，保留原字
-        let r = '';
-        for (let i = 0; i < o.length; i++) r += s[i] === '台' ? '台' : o[i];
-        return r;
-      };
-    }).catch(e => { ccPromise = null; throw e; });
+function getWorker(){
+  if (!worker) {
+    worker = new Worker(siteBase() + 'ocr-worker.js', { type: 'module' });
+    worker.onmessage = (e) => {
+      const m = e.data;
+      if (m.type === 'progress') { lastProgress = Date.now(); progressListener && progressListener(m); return; }
+      const p = pending.get(m.id);
+      if (!p) return;
+      pending.delete(m.id);
+      m.ok ? p.resolve(m) : p.reject(new Error(m.error || '辨識失敗'));
+    };
+    worker.onerror = (e) => resetWorker((e && e.message) || '辨識引擎發生錯誤');
   }
-  return ccPromise;
+  return worker;
 }
 
-// 使用者一按「上傳截圖」就先開始下載，挑照片的時間就能把引擎準備好
+function call(msg, transfer = []){
+  return new Promise((resolve, reject) => {
+    const id = nextId++;
+    pending.set(id, { resolve, reject });
+    getWorker().postMessage({ ...msg, id }, transfer);
+  });
+}
+
+// 準備引擎（下載模型、建立辨識器）；只要還有進度就繼續等，太久沒動靜才判定卡住
+function initEngine(){
+  if (!initPromise) {
+    lastProgress = Date.now();
+    initPromise = new Promise((resolve, reject) => {
+      const watch = setInterval(() => {
+        if (Date.now() - lastProgress > STALL_MS) {
+          clearInterval(watch);
+          resetWorker('準備辨識引擎逾時');
+          reject(new Error('準備辨識引擎逾時,請確認網路後再試一次'));
+        }
+      }, 2000);
+      call({ type: 'init' }).then(resolve, reject).finally(() => clearInterval(watch));
+    }).catch(e => { initPromise = null; throw e; });
+  }
+  return initPromise;
+}
+
+// 使用者一按「上傳截圖」就先開始準備，挑照片的時間就能下載好
 export function warmupOcr(){
   if (!ocrSupported) return;
-  getPaddle().catch(() => {});
-  getConverter().catch(() => {});
+  initEngine().catch(() => {});
+}
+
+// 在主畫面把圖片解碼成像素，交給背景執行緒（轉移所有權，不複製）
+async function toPixels(file){
+  const bmp = await createImageBitmap(file);
+  const canvas = document.createElement('canvas');
+  canvas.width = bmp.width; canvas.height = bmp.height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(bmp, 0, 0);
+  if (bmp.close) bmp.close();
+  return ctx.getImageData(0, 0, canvas.width, canvas.height);
 }
 
 let libPromise = null;
@@ -90,15 +109,15 @@ function loadTesseract(){
   return libPromise;
 }
 
-let workerPromise = null;
+let tessPromise = null;
 let progressCb = null;
-function getWorker(){
-  if (!workerPromise) {
-    workerPromise = loadTesseract().then(T => T.createWorker(['chi_tra', 'eng'], 1, {
+function getTesseract(){
+  if (!tessPromise) {
+    tessPromise = loadTesseract().then(T => T.createWorker(['chi_tra', 'eng'], 1, {
       logger: (m) => progressCb && progressCb(m),
-    })).catch(e => { workerPromise = null; throw e; });
+    })).catch(e => { tessPromise = null; throw e; });
   }
-  return workerPromise;
+  return tessPromise;
 }
 
 // 中文 OCR 常在字與字之間插入空白，把它們去掉；保留英數之間的空白
@@ -291,16 +310,27 @@ function cleanPaddle(items, imgH){
   return joinLines(lines).map(l => l.text).join('\n');
 }
 
+const MB = (n) => (n / 1048576).toFixed(n > 10485760 ? 0 : 1);
+
 async function recognizePaddle(file, onProgress){
-  const ready = !!paddlePromise;
-  onProgress({ label: ready ? '準備辨識' : '下載辨識模型(第一次約 30MB)', pct: 10 });
-  const ocr = await getPaddle();
-  onProgress({ label: '辨識文字中', pct: 55 });
-  const [res] = await ocr.predict(file);
-  onProgress({ label: '整理文字', pct: 92 });
-  let text = cleanPaddle(res.items || [], res.image && res.image.height);
-  try { text = (await getConverter())(text); } catch {}
-  return fixCommon(text);
+  progressListener = (m) => {
+    if (m.stage === 'download') onProgress({ label: `下載辨識模型 ${MB(m.loaded)} / ${MB(m.total)} MB(只需一次)`, pct: m.total ? Math.round(m.loaded / m.total * 60) : 5 });
+    else if (m.stage === 'init') onProgress({ label: '準備辨識引擎', pct: 62 });
+    else if (m.stage === 'det') onProgress({ label: '找出文字位置', pct: 68 });
+    else if (m.stage === 'rec') onProgress({ label: `辨識文字 ${m.done} / ${m.total} 行`, pct: 70 + Math.round(m.done / m.total * 28) });
+  };
+  try {
+    onProgress({ label: '準備辨識引擎', pct: 3 });
+    await initEngine();
+    const img = await toPixels(file);
+    const job = call({ type: 'ocr', width: img.width, height: img.height, buffer: img.data.buffer }, [img.data.buffer]);
+    let timer;
+    const timeout = new Promise((_, reject) => { timer = setTimeout(() => { resetWorker('辨識逾時'); reject(new Error('辨識逾時')); }, OCR_TIMEOUT_MS); });
+    const res = await Promise.race([job, timeout]).finally(() => clearTimeout(timer));
+    return fixCommon(cleanPaddle(res.items || [], res.image && res.image.height));
+  } finally {
+    progressListener = null;
+  }
 }
 
 // onProgress({ label, pct })
@@ -308,6 +338,7 @@ export async function recognizeImage(file, onProgress = () => {}){
   try {
     return await recognizePaddle(file, onProgress);
   } catch (e) {
+    if (/逾時/.test(e.message)) throw new Error(e.message + '。可以改用手機內建的「拷貝文字」貼上(見上方說明)。');
     console.warn('PaddleOCR 無法使用,改用 Tesseract', e);
     return recognizeTesseract(file, onProgress);
   }
@@ -321,8 +352,8 @@ async function recognizeTesseract(file, onProgress){
     onProgress({ label: m.status === 'recognizing text' ? label + pass : label, pct: Math.round((m.progress || 0) * 100) });
   };
   try {
-    const worker = await getWorker();
-    const run = async (mode) => extract((await worker.recognize(await preprocess(file, mode), {}, { text: true, blocks: true })).data);
+    const tess = await getTesseract();
+    const run = async (mode) => extract((await tess.recognize(await preprocess(file, mode), {}, { text: true, blocks: true })).data);
     pass = '';
     const first = await run('bin');
     // 第一次就很有把握的話，不用再跑第二次

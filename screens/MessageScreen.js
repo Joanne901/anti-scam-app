@@ -47,6 +47,12 @@ export default function MessageScreen(){
         {ocrSupported && (
           <>
             <UploadTile shot={shot} ocr={ocr} err={ocrErr} onPress={ocr ? undefined : fromScreenshot} />
+            <View style={{ flexDirection: 'row', marginTop: 10, paddingHorizontal: 2 }}>
+              <Text style={{ fontSize: 12, marginRight: 6 }}>💡</Text>
+              <Text style={{ flex: 1, fontSize: 12, lineHeight: 18, color: c.textDim }}>
+                最快最準的方法:iPhone 在「照片」打開截圖,<Text style={{ fontWeight: '800', color: c.text }}>長按文字 →「拷貝」</Text>;Android 用 Google 智慧鏡頭「複製文字」,再貼到下方。
+              </Text>
+            </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 14 }}>
               <View style={{ flex: 1, height: 1, backgroundColor: c.border }} />
               <Text style={{ marginHorizontal: 10, fontSize: 12, color: c.textFaint, fontWeight: '700' }}>或直接貼上文字</Text>
