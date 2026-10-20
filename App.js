@@ -65,7 +65,7 @@ function Tabs(){
           <Tab.Screen name="查網址" component={UrlScreen} options={{ tabBarIcon: TabIcon('🔗') }} />
           <Tab.Screen name="驗訊息" component={MessageScreen} options={{ tabBarIcon: TabIcon('💬') }} />
           <Tab.Screen name="圖鑑" component={GuideScreen} options={{ tabBarIcon: TabIcon('📖') }} />
-          <Tab.Screen name="被騙了" component={SosScreen} options={{ tabBarIcon: TabIcon('🆘') }} />
+          <Tab.Screen name="緊急求助" component={SosScreen} options={{ tabBarIcon: TabIcon('🆘') }} />
         </Tab.Navigator>
       </NavigationContainer>
     </>
