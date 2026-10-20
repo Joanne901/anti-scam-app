@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, useColorScheme } from 'react-native';
+import { View, Text, Pressable, Platform, useColorScheme } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,9 +12,12 @@ import GuideScreen from './screens/GuideScreen';
 import SosScreen from './screens/SosScreen';
 import Banners from './banners';
 import { InstallGuide } from './install';
+import { isStandalone } from './pwa';
 
 const Tab = createBottomTabNavigator();
 const TAB_BAR_HEIGHT = 64;
+// 從主畫面打開時沒有瀏覽器網址列，分頁列會直接貼著手機狀態列（時間、電量），往下留一點空間
+const STANDALONE_GAP = Platform.OS === 'web' && isStandalone() ? 14 : 0;
 
 const TabIcon = (emoji) => ({ focused }) => (
   <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.6 }}>{emoji}</Text>
@@ -38,6 +41,7 @@ const TabButton = (c) => ({ children, style, onPress, onLongPress, ...rest }) =>
 
 function Tabs(){
   const insets = useSafeAreaInsets();
+  const top = insets.top + STANDALONE_GAP;
   const scheme = useColorScheme();
   const c = useTheme();
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
@@ -58,7 +62,7 @@ function Tabs(){
             headerShown: false,
             tabBarActiveTintColor: c.primary,
             tabBarInactiveTintColor: c.textFaint,
-            tabBarStyle: { height: TAB_BAR_HEIGHT + insets.top, paddingTop: insets.top, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border, elevation: 0, shadowOpacity: 0 },
+            tabBarStyle: { height: TAB_BAR_HEIGHT + top, paddingTop: top, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border, elevation: 0, shadowOpacity: 0 },
             tabBarItemStyle: { paddingTop: 4, paddingBottom: 6 },
             tabBarLabelStyle: { fontSize: 13, lineHeight: 18, fontWeight: '800', marginTop: 2, flexShrink: 0 },
             tabBarActiveBackgroundColor: c.surface,
@@ -71,7 +75,7 @@ function Tabs(){
           <Tab.Screen name="緊急求助" component={SosScreen} options={{ tabBarIcon: TabIcon('🆘') }} />
         </Tab.Navigator>
       </NavigationContainer>
-      <Banners top={insets.top + TAB_BAR_HEIGHT + 8} />
+      <Banners top={top + TAB_BAR_HEIGHT + 8} />
       <InstallGuide />
     </View>
   );
