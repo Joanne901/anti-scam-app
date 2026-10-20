@@ -159,18 +159,29 @@ export function scanMessage(text){
   text = (text || '').trim();
   if (!text) return null;
 
+  const lower = text.toLowerCase();
+  const positions = (w) => {
+    const wl = w.toLowerCase(), out = [];
+    for (let i = lower.indexOf(wl); i !== -1; i = lower.indexOf(wl, i + 1)) out.push(i);
+    return out;
+  };
+  const candidates = new Set(PATTERNS.flatMap(p => p.words.filter(w => lower.includes(w.toLowerCase()))));
+  // 只出現在更長命中詞裡面的不算（例:「輸入金額」裡的「入金」、「款項無法匯入」裡的「無法匯入」）
+  const spans = [...candidates].flatMap(w => positions(w).map(s => [s, s + w.length, w]));
+  const covered = (w) => positions(w).every(s =>
+    spans.some(([a, b, o]) => o !== w && o.length > w.length && a <= s && s + w.length <= b));
+
   const hitTypes = [];
   const all = new Set();
-  const lower = text.toLowerCase();
   for (const p of PATTERNS) {
-    const found = p.words.filter(w => lower.includes(w.toLowerCase()));
+    const found = p.words.filter(w => candidates.has(w) && !covered(w));
     if (found.length) { hitTypes.push({ type: p.type, tip: p.tip, found }); found.forEach(w => all.add(w)); }
   }
   const words = [...all];
   const segments = buildSegments(text, words);
   const total = words.length;
 
-  const strongSet = ['假冒檢警 / 監管帳戶', '要求敏感資料', '網拍 / 賣貨便金流釣魚', '解除分期付款'];
+  const strongSet = ['假冒檢警 / 監管帳戶', '要求敏感資料', '網拍 / 賣貨便金流釣魚', '解除分期付款', '假客服 / 簽署物流金流協議'];
   const strong = hitTypes.some(h => strongSet.includes(h.type));
 
   let level, emoji, label, meta;
