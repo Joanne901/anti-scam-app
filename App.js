@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Pressable, Platform, useColorScheme } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Pressable, Animated, Platform, useColorScheme } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,32 +16,77 @@ import { InstallGuide } from './install';
 import { isStandalone } from './pwa';
 
 const Tab = createBottomTabNavigator();
-const TAB_BAR_HEIGHT = 54;
+const TAB_BAR_HEIGHT = 58;
 const STANDALONE = Platform.OS === 'web' && isStandalone();
 // 從主畫面打開時沒有瀏覽器網址列，分頁列會直接貼著手機狀態列（時間、電量），往下留一點空間
 const STANDALONE_GAP = STANDALONE ? 14 : 0;
 
 
 // 分頁列只放線條圖示、不放文字也不上色：目前所在的分頁深色、線條粗一點，其他淺灰
-const TabIcon = (name, c) => ({ focused }) => (
-  <Icon name={name} size={24} color={focused ? c.text : c.textFaint} strokeWidth={focused ? 2.2 : 1.7} />
-);
+// 分頁列：只有線條圖示、不放文字。
+// 目前所在的分頁有一顆「鼓起來」的淺灰膠囊（上亮下暗的漸層、頂端一條亮邊、底下柔和陰影），
+// 切換分頁時膠囊會滑過去；按下去時按鈕會縮小、陰影變成往內凹，像按到實體按鈕
+const PILL_W = 62, PILL_H = 40;
 
-const TabButton = () => ({ children, style, onPress, onLongPress, ...rest }) => {
-  const selected = rest['aria-selected'] ?? rest.accessibilityState?.selected;
+// 膠囊的立體感（網頁版用 CSS 的漸層與陰影）
+function pillLook(dark, pressed){
+  if (dark) return pressed
+    ? { backgroundImage: 'linear-gradient(180deg, #1b1b1f 0%, #232328 100%)', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.55), inset 0 -1px 0 rgba(255,255,255,0.04)' }
+    : { backgroundImage: 'linear-gradient(180deg, #34343a 0%, #222227 100%)', boxShadow: '0 4px 10px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.10)' };
+  return pressed
+    ? { backgroundImage: 'linear-gradient(180deg, #e4e4e9 0%, #ededf1 100%)', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.14), inset 0 -1px 0 rgba(255,255,255,0.8)' }
+    : { backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #e9e9ee 100%)', boxShadow: '0 4px 10px rgba(15,15,25,0.12), 0 1px 2px rgba(15,15,25,0.10), inset 0 1px 0 rgba(255,255,255,1), inset 0 -1px 0 rgba(0,0,0,0.05)' };
+}
+
+function TopTabBar({ state, descriptors, navigation, c, top, dark }){
+  const [width, setWidth] = useState(0);
+  const [pressing, setPressing] = useState(-1);
+  const pos = useRef(new Animated.Value(state.index)).current;
+  useEffect(() => {
+    Animated.spring(pos, { toValue: state.index, useNativeDriver: false, friction: 8, tension: 90 }).start();
+  }, [state.index, pos]);
+
+  const n = state.routes.length;
+  const tabW = width / n;
+  const translateX = pos.interpolate({ inputRange: [0, Math.max(1, n - 1)], outputRange: [(tabW - PILL_W) / 2, (tabW - PILL_W) / 2 + tabW * Math.max(1, n - 1)] });
+  const pillPressed = pressing === state.index;
+
   return (
-    <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
-      accessibilityRole="tab"
-      accessibilityState={{ selected }}
-      accessibilityLabel={rest.accessibilityLabel ?? rest['aria-label']}
-      style={style}
-    >
-      {children}
-    </Pressable>
+    <View style={{ height: TAB_BAR_HEIGHT + top, paddingTop: top, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border }}>
+      <View style={{ flex: 1, flexDirection: 'row' }} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
+        {width > 0 && (
+          <Animated.View pointerEvents="none" style={[{
+            position: 'absolute', top: (TAB_BAR_HEIGHT - PILL_H) / 2, left: 0, width: PILL_W, height: PILL_H,
+            borderRadius: PILL_H / 2, backgroundColor: c.bg,
+            transform: [{ translateX }, { scale: pillPressed ? 0.94 : 1 }],
+          }, Platform.OS === 'web' ? pillLook(dark, pillPressed) : null]} />
+        )}
+        {state.routes.map((route, i) => {
+          const focused = state.index === i;
+          const { options } = descriptors[route.key];
+          const onPress = () => {
+            const e = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+            if (!focused && !e.defaultPrevented) navigation.navigate(route.name);
+          };
+          const sinking = pressing === i && !focused; // 按住還沒選中的分頁：底下出現一個凹下去的淺坑
+          return (
+            <Pressable key={route.key} onPress={onPress} onPressIn={() => setPressing(i)} onPressOut={() => setPressing(-1)}
+              accessibilityRole="tab" accessibilityState={{ selected: focused }} accessibilityLabel={options.tabBarAccessibilityLabel}
+              style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+              {sinking && (
+                <View pointerEvents="none" style={[{ position: 'absolute', width: PILL_W, height: PILL_H, borderRadius: PILL_H / 2, backgroundColor: c.bg },
+                  Platform.OS === 'web' ? pillLook(dark, true) : null]} />
+              )}
+              <View style={{ transform: [{ scale: pressing === i ? 0.88 : 1 }] }}>
+                <Icon name={options.tabIcon} size={22} color={focused ? c.text : c.textFaint} strokeWidth={focused ? 2.2 : 1.7} />
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
   );
-};
+}
 
 function Tabs(){
   const insets = useSafeAreaInsets();
@@ -60,22 +105,13 @@ function Tabs(){
       <NavigationContainer theme={navTheme}>
         <Tab.Navigator
           // 分頁列放在上方：手機瀏覽器底部的工具列會遮住下方分頁列
-          screenOptions={{
-            tabBarPosition: 'top',
-            tabBarShowLabel: false,
-            headerShown: false,
-            tabBarActiveTintColor: c.primary,
-            tabBarInactiveTintColor: c.textFaint,
-            tabBarStyle: { height: TAB_BAR_HEIGHT + top, paddingTop: top, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border, elevation: 0, shadowOpacity: 0 },
-            tabBarItemStyle: { justifyContent: 'center' },
-            tabBarActiveBackgroundColor: c.surface,
-            tabBarButton: TabButton(),
-          }}
+          screenOptions={{ tabBarPosition: 'top', headerShown: false }}
+          tabBar={(props) => <TopTabBar {...props} c={c} top={top} dark={scheme === 'dark'} />}
         >
-          <Tab.Screen name="查網址" component={UrlScreen} options={{ tabBarIcon: TabIcon('link', c), tabBarAccessibilityLabel: '查網址' }} />
-          <Tab.Screen name="驗訊息" component={MessageScreen} options={{ tabBarIcon: TabIcon('message-square-text', c), tabBarAccessibilityLabel: '驗訊息' }} />
-          <Tab.Screen name="圖鑑" component={GuideScreen} options={{ tabBarIcon: TabIcon('book-open', c), tabBarAccessibilityLabel: '圖鑑' }} />
-          <Tab.Screen name="緊急求助" component={SosScreen} options={{ tabBarIcon: TabIcon('life-buoy', c), tabBarAccessibilityLabel: '緊急求助' }} />
+          <Tab.Screen name="查網址" component={UrlScreen} options={{ tabIcon: 'link', tabBarAccessibilityLabel: '查網址' }} />
+          <Tab.Screen name="驗訊息" component={MessageScreen} options={{ tabIcon: 'message-square-text', tabBarAccessibilityLabel: '驗訊息' }} />
+          <Tab.Screen name="圖鑑" component={GuideScreen} options={{ tabIcon: 'book-open', tabBarAccessibilityLabel: '圖鑑' }} />
+          <Tab.Screen name="緊急求助" component={SosScreen} options={{ tabIcon: 'life-buoy', tabBarAccessibilityLabel: '緊急求助' }} />
         </Tab.Navigator>
       </NavigationContainer>
       <Banners top={top + TAB_BAR_HEIGHT + 8} />
