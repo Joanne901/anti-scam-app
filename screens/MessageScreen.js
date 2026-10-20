@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, TextInput, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useTheme } from '../theme';
+import Icon from '../icons';
 import { Card, Btn, Label, SubText, Note, Verdict, Reason, SectionTitle, TextBtn } from '../components';
 import { scanMessage } from '../analyze';
 import { ocrSupported, pickImage, recognizeImage, warmupOcr } from '../ocr';
@@ -48,7 +49,7 @@ export default function MessageScreen(){
           <>
             <UploadTile shot={shot} ocr={ocr} err={ocrErr} onPress={ocr ? undefined : fromScreenshot} />
             <View style={{ flexDirection: 'row', marginTop: 10, paddingHorizontal: 2 }}>
-              <Text style={{ fontSize: 12, marginRight: 6 }}>💡</Text>
+              <View style={{ marginRight: 6, marginTop: 1 }}><Icon name="lightbulb" size={14} color={c.textDim} strokeWidth={2} /></View>
               <Text style={{ flex: 1, fontSize: 12, lineHeight: 18, color: c.textDim }}>
                 最準：iPhone 在照片裡<Text style={{ fontWeight: '800', color: c.text }}>長按文字 → 拷貝</Text>，Android 用 Google 智慧鏡頭複製文字，再貼到下方。
               </Text>
@@ -148,7 +149,7 @@ function UploadTile({ shot, ocr, err, onPress }){
         <Image source={{ uri: shot }} style={{ width: 48, height: 80, borderRadius: 8, backgroundColor: c.border }} resizeMode="cover" />
       ) : (
         <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: c.surface, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 22 }}>📷</Text>
+          <Icon name="image-up" size={22} color={c.primary} />
         </View>
       )}
       <View style={{ flex: 1, marginLeft: 12 }}>

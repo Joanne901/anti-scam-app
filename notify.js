@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useTheme } from './theme';
+import Icon from './icons';
 import { isStandalone, deviceKind } from './pwa';
 import { startInstall } from './install';
 import { pushSupported, pushStatus, enablePush, disablePush, sendTestPush, refreshPushSubscription } from './push';
@@ -67,7 +68,7 @@ export function NotifyCard(){
     <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 14, padding: 13, marginBottom: 14 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
-          <Text style={{ fontSize: 21 }}>🔔</Text>
+          <Icon name="bell" size={22} color={c.primary} />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 15, fontWeight: '900', color: c.text }}>更新通知</Text>

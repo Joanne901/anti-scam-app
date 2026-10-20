@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { useTheme } from './theme';
+import Icon from './icons';
 import { checkForUpdate, onAppVisible, installTipDismissed, dismissInstallTip, onInstallAvailable, canPromptInstall } from './pwa';
 import { canShowInstall, startInstall } from './install';
 
@@ -15,7 +16,9 @@ function Toast({ icon, title, body, action, onAction, onClose }){
       borderWidth: 1, borderColor: c.primary, padding: 12,
       shadowColor: '#141929', shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 6,
     }}>
-      <Text style={{ fontSize: 22, marginRight: 10 }}>{icon}</Text>
+      <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
+        <Icon name={icon} size={20} color={c.primary} />
+      </View>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 14, fontWeight: '800', color: c.text }}>{title}</Text>
         {body ? <Text style={{ fontSize: 12.5, color: c.textDim, marginTop: 2, lineHeight: 18 }}>{body}</Text> : null}
@@ -68,12 +71,12 @@ export default function Banners({ top }){
   let toast = null;
   if (update) {
     toast = (
-      <Toast icon="✨" title="防詐小衛有新版本" body={update.note || '更新後就能使用最新的功能與偵測規則。'}
+      <Toast icon="bell" title="防詐小衛有新版本" body={update.note || '更新後就能使用最新的功能與偵測規則。'}
         action="更新" onAction={() => window.location.reload()} onClose={dismiss} />
     );
   } else if (showInstall) {
     toast = (
-      <Toast icon="📲" title="加到主畫面"
+      <Toast icon="smartphone" title="加到主畫面"
         body={oneTap ? '一鍵安裝到主畫面，像 App 一樣使用。' : '像 App 一樣，從手機桌面直接打開。'}
         action={oneTap ? '安裝' : '加入'}
         onAction={() => { close(); startInstall(); }} onClose={close} />

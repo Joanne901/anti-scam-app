@@ -8,7 +8,7 @@ const { expo } = require('../app.json');
 const base = (expo.experiments?.baseUrl || '').replace(/\/$/, '');
 const name = expo.web?.name || expo.name;
 const shortName = expo.web?.shortName || name;
-const themeColor = '#5145d8'; // 靛紫色：瀏覽器網址列 / 手機狀態列的顏色
+const themeColor = '#ffffff'; // 瀏覽器網址列 / 手機狀態列維持白色
 
 // GitHub Pages 預設會忽略底線開頭的資料夾（_expo），要關掉 Jekyll
 fs.writeFileSync(path.join(dist, '.nojekyll'), '');
@@ -39,16 +39,13 @@ let note = '';
 try { note = execSync('git log -1 --format=%s', { encoding: 'utf8' }).trim(); } catch {}
 fs.writeFileSync(path.join(dist, 'version.json'), JSON.stringify({ bundle, note, time: new Date().toISOString() }));
 
-// 讓頁面延伸到 iPhone 狀態列底下，狀態列那一條塗上靛紫色（App.js），用 safe-area 留出狀態列的空間
-html = html.replace(/<meta name="viewport" content="([^"]*)"/, (m, c) => c.includes('viewport-fit') ? m : `<meta name="viewport" content="${c}, viewport-fit=cover"`);
 // 只留我們自己的 theme-color（淺色 / 深色各一），Expo 預設那個拿掉
 html = html.replace(/<meta name="theme-color"[^>]*>/g, '');
 
 const tags = [
   `<link rel="manifest" href="${base}/manifest.webmanifest" />`,
   `<meta name="theme-color" media="(prefers-color-scheme: light)" content="${themeColor}" />`,
-  `<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2e2a6e" />`,
-  `<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />`,
+  `<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e1014" />`,
   `<link rel="apple-touch-icon" href="${base}/apple-touch-icon.png" />`,
   `<link rel="icon" type="image/png" sizes="192x192" href="${base}/icon-192.png" />`,
   `<meta name="apple-mobile-web-app-capable" content="yes" />`,

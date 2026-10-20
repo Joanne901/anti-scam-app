@@ -7,7 +7,6 @@ const light = {
   danger:'#e03131', dangerSoft:'#fdecec', dangerInk:'#b01c1c',
   warn:'#e8820c', warnSoft:'#fff3e0', warnInk:'#9a5600',
   ok:'#2f9e44', okSoft:'#e7f6ec', okInk:'#1e7a30',
-  statusBar:'#5145d8', // 從主畫面打開時，手機狀態列那一條的靛紫色
 };
 
 const dark = {
@@ -17,7 +16,6 @@ const dark = {
   danger:'#ff6b6b', dangerSoft:'#38191b', dangerInk:'#ff9b9b',
   warn:'#ffa94d', warnSoft:'#39290f', warnInk:'#ffc078',
   ok:'#51cf66', okSoft:'#15281a', okInk:'#8ce99a',
-  statusBar:'#2e2a6e',
 };
 
 export function useTheme(){

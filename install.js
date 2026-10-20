@@ -6,6 +6,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, Pressable, Animated, Platform } from 'react-native';
 import { useTheme } from './theme';
+import Icon from './icons';
 import {
   onInstallAvailable, canPromptInstall, promptInstall,
   isStandalone, deviceKind, iosBrowser, iosMajor, androidBrowser, inAppBrowser, inLineApp, openInExternalBrowser,
@@ -37,7 +38,7 @@ function guideFor(){
     return {
       intro: '在臉書／IG 裡面沒辦法加到主畫面，要先換到手機瀏覽器。',
       arrow: 'topRight',
-      steps: [['點右上角的「⋯」', '⋯'], ['選「在外部瀏覽器開啟」', '↗'], ['開好之後，再按一次「加到主畫面」', '📲']],
+      steps: [['點右上角的「⋯」', '⋯'], ['選「在外部瀏覽器開啟」', '↗'], ['開好之後，再按一次「加到主畫面」', '＋']],
     };
   }
   if (kind === 'ios') {
@@ -129,7 +130,7 @@ export function InstallGuide(){
       <BouncingArrow pos={g.arrow} />
       <View style={{ position: 'absolute', left: 16, right: 16, top: '22%', backgroundColor: c.surface, borderRadius: 20, padding: 18 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontSize: 24, marginRight: 9 }}>📲</Text>
+          <View style={{ marginRight: 9 }}><Icon name="smartphone" size={22} color={c.primary} /></View>
           <Text style={{ fontSize: 18, fontWeight: '900', color: c.text, flex: 1 }}>加到主畫面</Text>
           <TouchableOpacity onPress={() => setOpen(false)} hitSlop={10}><Text style={{ fontSize: 18, color: c.textFaint }}>✕</Text></TouchableOpacity>
         </View>
@@ -170,7 +171,7 @@ export function InstallButton({ style }){
       borderRadius: 14, padding: 13, marginBottom: 14,
     }, style]}>
       <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
-        <Text style={{ fontSize: 22 }}>📲</Text>
+        <Icon name="smartphone" size={22} color={c.primary} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 15, fontWeight: '900', color: c.primary }}>{oneTap ? '一鍵安裝' : '加到主畫面'}</Text>
