@@ -75,16 +75,29 @@ export function deviceKind(){
   return 'desktop';
 }
 
+// iPhone 上用的是哪個瀏覽器（加到主畫面的按鈕位置不同）
+export function iosBrowser(){
+  const ua = (isWeb && navigator.userAgent) || '';
+  if (/CriOS/i.test(ua)) return 'chrome';
+  if (/FxiOS|EdgiOS|OPiOS/i.test(ua)) return 'other';
+  return 'safari';
+}
+
 // 在 LINE / FB / IG 內建瀏覽器裡無法加到主畫面
 export function inAppBrowser(){
   if (!isWeb) return false;
   return /Line\/|FBAN|FBAV|Instagram/i.test(navigator.userAgent || '');
 }
 
+// 按 ✕ 只會暫停提示幾天，不是永遠不出現（舊版存的 '1' 視為已過期）
 const DISMISS_KEY = 'installTipDismissed';
+const SNOOZE_MS = 3 * 24 * 60 * 60 * 1000;
 export function installTipDismissed(){
-  try { return localStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; }
+  try {
+    const t = +localStorage.getItem(DISMISS_KEY);
+    return t > 1 && Date.now() - t < SNOOZE_MS;
+  } catch { return false; }
 }
 export function dismissInstallTip(){
-  try { localStorage.setItem(DISMISS_KEY, '1'); } catch {}
+  try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {}
 }
