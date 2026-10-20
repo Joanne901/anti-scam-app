@@ -11,6 +11,7 @@ import MessageScreen from './screens/MessageScreen';
 import GuideScreen from './screens/GuideScreen';
 import SosScreen from './screens/SosScreen';
 import Banners from './banners';
+import { InstallGuide } from './install';
 
 const Tab = createBottomTabNavigator();
 const TAB_BAR_HEIGHT = 64;
@@ -71,6 +72,7 @@ function Tabs(){
         </Tab.Navigator>
       </NavigationContainer>
       <Banners top={insets.top + TAB_BAR_HEIGHT + 8} />
+      <InstallGuide />
     </View>
   );
 }

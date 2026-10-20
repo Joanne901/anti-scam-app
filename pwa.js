@@ -54,8 +54,9 @@ export function onInstallAvailable(cb){
 
 export function canPromptInstall(){ return !!deferredPrompt; }
 
+// 回傳 true / false（使用者按安裝 / 取消）；沒有系統安裝視窗可叫時回傳 null
 export async function promptInstall(){
-  if (!deferredPrompt) return false;
+  if (!deferredPrompt) return null;
   deferredPrompt.prompt();
   const { outcome } = await deferredPrompt.userChoice;
   deferredPrompt = null;
@@ -81,6 +82,31 @@ export function iosBrowser(){
   if (/CriOS/i.test(ua)) return 'chrome';
   if (/FxiOS|EdgiOS|OPiOS/i.test(ua)) return 'other';
   return 'safari';
+}
+
+// iOS 主版本（Safari 會寫在 Version/xx，其他瀏覽器看 iPhone OS xx_）
+export function iosMajor(){
+  const ua = (isWeb && navigator.userAgent) || '';
+  const m = ua.match(/Version\/(\d+)/) || ua.match(/OS (\d+)_/);
+  return m ? +m[1] : 0;
+}
+
+export function androidBrowser(){
+  const ua = (isWeb && navigator.userAgent) || '';
+  if (/SamsungBrowser/i.test(ua)) return 'samsung';
+  if (/Firefox/i.test(ua)) return 'firefox';
+  return 'chrome';
+}
+
+export function inLineApp(){
+  return isWeb && /Line\//i.test(navigator.userAgent || '');
+}
+
+// LINE 內建瀏覽器看到網址帶 openExternalBrowser=1，會改用手機預設瀏覽器開啟
+export function openInExternalBrowser(){
+  const u = new URL(window.location.href);
+  u.searchParams.set('openExternalBrowser', '1');
+  window.location.href = u.toString();
 }
 
 // 在 LINE / FB / IG 內建瀏覽器裡無法加到主畫面
