@@ -55,20 +55,22 @@ export function pickImage(){
   });
 }
 
-// 辨識前先整理圖片：放大、轉灰階、二值化成白底黑字。
-// 聊天截圖常有彩色背景與氣泡，直接丟給 OCR 錯字很多；深色模式的截圖會先反白。
-async function preprocess(file){
+// 辨識前先整理圖片。兩種做法各有擅長的截圖，所以兩種都會試：
+//  bin   放大 + 二值化成白底黑字（深色模式先反白），對彩色背景、氣泡較穩
+//  plain 只放大，保留原本的灰階細節，有些截圖反而辨識得更完整
+async function preprocess(file, mode){
   const bmp = await createImageBitmap(file);
-  const scale = Math.min(3, Math.max(1, 1600 / bmp.width));
+  const scale = Math.min(4, Math.max(1, 1600 / bmp.width));
   const w = Math.round(bmp.width * scale), h = Math.round(bmp.height * scale);
   const canvas = document.createElement('canvas');
   canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(bmp, 0, 0, w, h);
+  if (mode === 'plain') return canvas;
+
   const img = ctx.getImageData(0, 0, w, h);
   const px = img.data;
-
   const lum = new Uint8ClampedArray(w * h);
   let sum = 0;
   for (let i = 0, j = 0; i < px.length; i += 4, j++) {
@@ -85,6 +87,102 @@ async function preprocess(file){
   return canvas;
 }
 
+// ---- 辨識結果清理 ----
+// 截圖裡除了對話，還有狀態列、頭像、時間、已讀、輸入框，OCR 會把它們讀成亂碼。
+// 利用 Tesseract 給每個字 / 每行的信心分數，把沒把握的部分丟掉，再去掉聊天 App 的介面文字。
+const LINE_MIN_CONF = 50;  // 整行平均信心低於這個就整行丟掉
+const EDGE_MIN_CONF = 45;  // 行首行尾信心低於這個的字（多半是頭像、氣泡邊框）丟掉
+const HAS_CJK = /[㐀-鿿]/;
+const HAS_LINK = /(https?:|www\.|[a-z0-9-]+\.[a-z]{2,})/i;
+const SYMBOLS_ONLY = /^[^\p{L}\p{N}【】「」（）()<>]+$/u;
+// 中文旁邊的標點不需要空白：「查詢 , 您的」→「查詢,您的」
+function tidyPunct(t){
+  return t
+    .replace(/([㐀-鿿])\s+(?=[,.:;!?()（）【】「」、。，：；！？])/g, '$1')
+    .replace(/([,.:;!?()（）【】「」、。，：；！？])\s+(?=[㐀-鿿【「（(])/g, '$1');
+}
+const UI_LINE = [
+  /^(上午|下午)?\s*\d{1,2}\s*[:：.]\s*\d{2}$/,  // 時間
+  /^已讀/,
+  /^<?\s*\d{1,3}\s*\+/,                        // LINE 標題列的未讀數「<99+」
+];
+
+function cleanLine(line){
+  const words = [...line.words];
+  const junk = (w) => w.confidence < EDGE_MIN_CONF || (SYMBOLS_ONLY.test(w.text) && w.confidence < 80);
+  while (words.length && junk(words[0])) words.shift();
+  while (words.length && junk(words[words.length - 1])) words.pop();
+  let t = cleanText(words.map(w => w.text).join(' '))
+    .replace(/(上午|下午)\s*\d{1,2}\s*[:：.]\s*\d{2}/g, '')
+    .replace(/已讀/g, '')
+    .replace(/^[^\p{L}\p{N}【「（(<]+/u, '')
+    .replace(/[^\p{L}\p{N}。！？!?」】）)…]+$/u, '')
+    .trim();
+  if (!t) return null;
+  if (line.confidence < LINE_MIN_CONF) return null;
+  if (UI_LINE.some(re => re.test(t))) return null;
+  // 沒有中文也不是網址的短行，幾乎都是介面圖示被讀成英文字母
+  if (!HAS_CJK.test(t) && !HAS_LINK.test(t) && line.confidence < 85) return null;
+  return { text: tidyPunct(t), bbox: line.bbox, h: line.bbox.y1 - line.bbox.y0 };
+}
+
+// 同一個對話氣泡裡被換行切斷的句子接回來（上下距離很近、左邊對齊），
+// 「收款帳 / 戶」這種被切開的關鍵字才偵測得到
+function joinLines(lines){
+  const out = [];
+  for (const l of lines) {
+    const prev = out[out.length - 1];
+    if (prev) {
+      // 用單行高度判斷（不能用合併後的整塊高度，不然門檻會越滾越大）
+      const h = Math.min(prev.h, l.h);
+      const gap = l.bbox.y0 - prev.bbox.y1;
+      const aligned = Math.abs(l.bbox.x0 - prev.bbox.x0) < h * 1.5;
+      if (gap < h * 0.6 && aligned && !/[。！？!?]$/.test(prev.text)) {
+        prev.text += (/[A-Za-z0-9]$/.test(prev.text) && /^[A-Za-z0-9]/.test(l.text) ? ' ' : '') + l.text;
+        prev.bbox = { ...prev.bbox, y1: l.bbox.y1 };
+        prev.h = l.h;
+        continue;
+      }
+    }
+    out.push({ ...l });
+  }
+  return out;
+}
+
+// 中文 OCR 常見的形近字誤認，只收錄詐騙訊息常出現的詞，修正後關鍵字比對也比較準
+const OCR_FIXES = [
+// 只放「替換後不會誤傷正常詞」的組合（例如「可詢」不能換成「查詢」，會把「可詢問」改壞）
+  ['買頁', '買賣'], ['頁家', '賣家'], ['責家', '賣家'],
+  ['旨用', '冒用'], ['假旨', '假冒'],
+  ['簽點', '簽署'], ['簽屠', '簽署'], ['簽屆', '簽署'],
+  ['機檔', '機構'], ['背用', '費用'], ['音用', '費用'],
+  ['託之條款', '託運條款'], ['旗運條款', '託運條款'],
+  ['送結限制', '凍結限制'], ['依復', '恢復'], ['示完成聯結', '未完成聯結'],
+  ['捉據', '單據'], ['認論', '認證'], ['認放', '認證'],
+];
+function fixCommon(t){
+  for (const [a, b] of OCR_FIXES) t = t.split(a).join(b);
+  return t;
+}
+
+function extract(data){
+  const lines = [];
+  for (const b of data.blocks || []) for (const p of b.paragraphs || []) for (const l of p.lines || []) {
+    const c = cleanLine(l);
+    if (c) lines.push(c);
+  }
+  lines.sort((a, b) => a.bbox.y0 - b.bbox.y0);
+  const text = fixCommon(joinLines(lines).map(l => l.text).join('\n'));
+  // 分數：有把握的中文字數，用來挑兩種前處理裡比較好的那個
+  let score = 0, total = 0;
+  for (const b of data.blocks || []) for (const p of b.paragraphs || []) for (const l of p.lines || []) for (const w of l.words || []) {
+    const n = (w.text.match(/[㐀-鿿]/g) || []).length;
+    total += n;
+    if (w.confidence >= 60) score += n;
+  }
+  return { text, score, sure: total ? score / total : 0 };
+}
+
 const STAGES = {
   'loading tesseract core': '載入辨識引擎',
   'initializing tesseract': '初始化',
@@ -95,14 +193,22 @@ const STAGES = {
 
 // onProgress({ label, pct })
 export async function recognizeImage(file, onProgress){
+  let pass = '';
   progressCb = (m) => {
     if (!onProgress) return;
-    onProgress({ label: STAGES[m.status] || '處理中', pct: Math.round((m.progress || 0) * 100) });
+    const label = STAGES[m.status] || '處理中';
+    onProgress({ label: m.status === 'recognizing text' ? label + pass : label, pct: Math.round((m.progress || 0) * 100) });
   };
   try {
     const worker = await getWorker();
-    const { data } = await worker.recognize(await preprocess(file));
-    return cleanText(data.text || '');
+    const run = async (mode) => extract((await worker.recognize(await preprocess(file, mode), {}, { text: true, blocks: true })).data);
+    pass = '';
+    const first = await run('bin');
+    // 第一次就很有把握的話，不用再跑第二次
+    if (first.sure >= 0.85 && first.text) return first.text;
+    pass = '(第二次比對)';
+    const second = await run('plain');
+    return (second.score > first.score ? second : first).text;
   } finally {
     progressCb = null;
   }
