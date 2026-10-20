@@ -1,0 +1,20 @@
+# 防詐小衛 推播伺服器（Cloudflare Worker）
+# 部署：在 push-server 資料夾執行 `npx wrangler deploy`
+# 私鑰用 `npx wrangler secret put VAPID_PRIVATE_JWK` 設定，不放在這裡
+name = "anti-scam-push"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+VERSION_URL = "https://joanne901.github.io/anti-scam-app/version.json"
+APP_URL = "https://joanne901.github.io/anti-scam-app/"
+ALLOWED_ORIGINS = "https://joanne901.github.io,http://localhost:8082,http://localhost:5056"
+ADMIN_CONTACT = "https://github.com/Joanne901/anti-scam-app"
+
+# 存訂閱資料的 KV（用 `npx wrangler kv namespace create SUBS` 建立）
+[[kv_namespaces]]
+binding = "SUBS"
+id = "6715ca18de4246bdb79df746f7e2a80d"

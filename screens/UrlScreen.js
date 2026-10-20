@@ -4,6 +4,7 @@ import { useTheme } from '../theme';
 import { Card, Btn, Label, SubText, Note, Verdict, Reason, SectionTitle, TextBtn } from '../components';
 import { analyzeUrl, parseUrl } from '../analyze';
 import { InstallButton } from '../install';
+import { NotifyCard } from '../notify';
 
 const SAMPLE_URL = 'https://myshl-7-11-com.tw-tyy.shop/goods.php?id=CM1792474461&fbclid=IwZXh0bgNhZW0';
 
@@ -91,6 +92,7 @@ export default function UrlScreen(){
       )}
 
       <InstallButton />
+      <NotifyCard />
 
       <Note>本工具依公開的釣魚特徵判斷,無法保證 100% 準確。{'\n'}最保險:自己開官方 App 或手動輸入官網,不要點別人給的連結。</Note>
     </ScrollView>

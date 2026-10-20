@@ -104,6 +104,13 @@ eas build -p ios --profile preview
 
 ### 更新通知
 
-每次 push 後重新部署,`scripts/postbuild-web.js` 會產生 `version.json`(含這次 commit 的標題)。
-使用者開著網頁或從主畫面打開時,App 會檢查是否有新版,有的話跳出「有新版本」提示,
-**commit 標題就是提示裡顯示的更新說明**,所以 commit 標題寫給使用者看得懂的話。
+兩種提醒同時運作:
+
+1. **App 開著時**:`scripts/postbuild-web.js` 產生 `version.json`,App 定期比對,有新版就在上方跳出「有新版本」。
+2. **App 關著也收得到的推播**:使用者在「查網址」頁按「🔔 更新通知 → 開啟」後,推播伺服器(`push-server/`,Cloudflare Worker)每 5 分鐘檢查 `version.json`,有新版就推播。
+   - iPhone 要先加到主畫面、從主畫面打開才能開啟(iOS 16.4 以上);Android 直接可用
+   - 1 小時內最多推播 1 次;commit 標題含 `[不通知]` 就不推播
+   - **commit 標題就是通知內容**,請寫給使用者看得懂的話
+
+推播伺服器部署(在 `push-server/` 資料夾):`npx wrangler deploy`。
+私鑰存在 Cloudflare 的加密設定(`npx wrangler secret put VAPID_PRIVATE_JWK`),備份在專案外層的 `push-vapid-private.local.json`,不要上傳也不要弄丟。

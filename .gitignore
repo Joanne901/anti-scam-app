@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# push-server 本機測試用的私鑰與暫存
+push-server/.dev.vars
+push-server/.wrangler/

@@ -1,0 +1,11 @@
+{
+  "name": "anti-scam-push",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.151.2"
+  },
+  "type": "module"
+}
