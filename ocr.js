@@ -1,10 +1,79 @@
-// 截圖文字辨識（OCR）：在使用者自己的瀏覽器裡跑 Tesseract.js，圖片不會上傳到任何伺服器。
-// 只支援網頁版；第一次使用會下載辨識模型（之後瀏覽器會快取）。
+// 截圖文字辨識（OCR）：全部在使用者自己的瀏覽器裡跑，圖片不會上傳到任何伺服器。只支援網頁版。
+//
+// 主要引擎：PaddleOCR（PP-OCRv5，繁簡中文都認得，比 Tesseract 準很多），在背景執行緒跑，畫面不會卡住。
+//   程式從 jsDelivr 載入，模型放在本站 public/models/（Apache-2.0，來自 PaddlePaddle 官方）。
+//   第一次使用要下載約 30MB，之後瀏覽器會快取。
+// 備用引擎：Tesseract.js，PaddleOCR 載入失敗（例如很舊的瀏覽器）時才用。
 import { Platform } from 'react-native';
 
 const TESSERACT_SRC = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+const PADDLE_SDK = 'https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/+esm';
+// SDK 內建的背景執行緒程式（已把 OpenCV、ONNX Runtime 打包在裡面），版本要和上面一致
+const PADDLE_WORKER = 'https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/dist/assets/worker-entry-C9UNuyOJ.js';
+// 必須和 SDK 背景執行緒內建的 onnxruntime-web 版本相同（0.4.2 內建 1.24.3）
+const ORT_WASM = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.3/dist/';
+const OPENCC = 'https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/esm/cn2t.js';
 
 export const ocrSupported = Platform.OS === 'web';
+
+// 用 Function 包一層，讓打包工具不要去解析 CDN 網址
+const importUrl = new Function('u', 'return import(u)');
+
+// 本站根目錄（GitHub Pages 上是 /anti-scam-app/），從載入的程式檔位置推算
+function siteBase(){
+  const s = document.querySelector('script[src*="_expo/static/js/"]');
+  return s ? s.src.split('_expo/')[0] : new URL('/', window.location.href).href;
+}
+
+let paddlePromise = null;
+function getPaddle(){
+  if (!paddlePromise) {
+    paddlePromise = (async () => {
+      const { PaddleOCR } = await importUrl(PADDLE_SDK);
+      // 背景執行緒必須和網頁同源，所以用 blob 包一層再去載入 CDN 上的程式
+      const workerUrl = URL.createObjectURL(new Blob([`import '${PADDLE_WORKER}';`], { type: 'text/javascript' }));
+      const base = siteBase();
+      const ocr = await PaddleOCR.create({
+        textDetectionModelName: 'PP-OCRv5_mobile_det',
+        textDetectionModelAsset: { url: base + 'models/PP-OCRv5_mobile_det_onnx_infer.tar' },
+        textRecognitionModelName: 'PP-OCRv5_mobile_rec',
+        textRecognitionModelAsset: { url: base + 'models/PP-OCRv5_mobile_rec_onnx_infer.tar' },
+        worker: { createWorker: () => new Worker(workerUrl, { type: 'module' }) },
+        ortOptions: { backend: 'wasm', wasmPaths: ORT_WASM },
+      });
+      await ocr.initialize();
+      return ocr;
+    })().catch(e => { paddlePromise = null; throw e; });
+  }
+  return paddlePromise;
+}
+
+// PaddleOCR 偶爾會吐出簡體字（例如「银行、冻结」），轉成台灣繁體。
+// 用 cn→tw（只換字形、不換用語），所以詐團的「賬號、信息」會保留，偵測才抓得到。
+let ccPromise = null;
+function getConverter(){
+  if (!ccPromise) {
+    ccPromise = importUrl(OPENCC).then(m => {
+      const conv = m.default.Converter({ from: 'cn', to: 'tw' });
+      return (s) => {
+        const o = conv(s);
+        if (o.length !== s.length) return o;
+        // OpenCC 會把「台」轉成「臺」，台灣慣用「台」，保留原字
+        let r = '';
+        for (let i = 0; i < o.length; i++) r += s[i] === '台' ? '台' : o[i];
+        return r;
+      };
+    }).catch(e => { ccPromise = null; throw e; });
+  }
+  return ccPromise;
+}
+
+// 使用者一按「上傳截圖」就先開始下載，挑照片的時間就能把引擎準備好
+export function warmupOcr(){
+  if (!ocrSupported) return;
+  getPaddle().catch(() => {});
+  getConverter().catch(() => {});
+}
 
 let libPromise = null;
 function loadTesseract(){
@@ -159,6 +228,7 @@ const OCR_FIXES = [
   ['託之條款', '託運條款'], ['旗運條款', '託運條款'],
   ['送結限制', '凍結限制'], ['依復', '恢復'], ['示完成聯結', '未完成聯結'],
   ['捉據', '單據'], ['認論', '認證'], ['認放', '認證'],
+  ['聯聚', '聯繫'], ['青家', '賣家'],
 ];
 function fixCommon(t){
   for (const [a, b] of OCR_FIXES) t = t.split(a).join(b);
@@ -191,8 +261,59 @@ const STAGES = {
   'recognizing text': '辨識文字中',
 };
 
+// ---- PaddleOCR 結果整理 ----
+// PaddleOCR 字很準，要處理的主要是聊天 App 介面上的字：時間、已讀、未讀數、狀態列、圖示
+const PADDLE_MIN_SCORE = 0.6;
+const PADDLE_UI = [
+  /^(上午|下午)?\s*\d{1,2}\s*[:：.]\s*\d{0,2}$/,  // 時間（含被截掉的「下午2:5」）
+  /^已.$/,                                       // 已讀（含誤認的「已请、已锁」）
+  /^\d{1,2}[:：]\d{2}\s*\d?$/,                   // 手機狀態列時間
+];
+
+function cleanPaddle(items, imgH){
+  const lines = [];
+  for (const it of items) {
+    if (!it.text || it.score < PADDLE_MIN_SCORE) continue;
+    const t = it.text.trim()
+      .replace(/^<?\s*\d{1,3}\+\s*/, '')                          // LINE 標題列的「<99+」
+      .replace(/\s*(上午|下午)\s*\d{1,2}\s*[:：.]\s*\d{0,2}$/, '')   // 黏在句尾的時間
+      .trim();
+    if (!t || PADDLE_UI.some(re => re.test(t))) continue;
+    // 沒有中文、不是網址、也不是電話號碼的，多半是圖示（↓、Aa、Q）或電量
+    if (!HAS_CJK.test(t) && !HAS_LINK.test(t) && !/\d{8,}/.test(t)) continue;
+    const xs = it.poly.map(p => p[0]), ys = it.poly.map(p => p[1]);
+    const bbox = { x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+    // 畫面最上方（標題列）和最下方（輸入框）一兩個字的，是圖示被讀成字（例如「目」「十回」）
+    if (imgH && t.length <= 2 && (bbox.y1 < imgH * 0.1 || bbox.y0 > imgH * 0.92)) continue;
+    lines.push({ text: t, bbox, h: bbox.y1 - bbox.y0 });
+  }
+  lines.sort((a, b) => a.bbox.y0 - b.bbox.y0);
+  return joinLines(lines).map(l => l.text).join('\n');
+}
+
+async function recognizePaddle(file, onProgress){
+  const ready = !!paddlePromise;
+  onProgress({ label: ready ? '準備辨識' : '下載辨識模型(第一次約 30MB)', pct: 10 });
+  const ocr = await getPaddle();
+  onProgress({ label: '辨識文字中', pct: 55 });
+  const [res] = await ocr.predict(file);
+  onProgress({ label: '整理文字', pct: 92 });
+  let text = cleanPaddle(res.items || [], res.image && res.image.height);
+  try { text = (await getConverter())(text); } catch {}
+  return fixCommon(text);
+}
+
 // onProgress({ label, pct })
-export async function recognizeImage(file, onProgress){
+export async function recognizeImage(file, onProgress = () => {}){
+  try {
+    return await recognizePaddle(file, onProgress);
+  } catch (e) {
+    console.warn('PaddleOCR 無法使用,改用 Tesseract', e);
+    return recognizeTesseract(file, onProgress);
+  }
+}
+
+async function recognizeTesseract(file, onProgress){
   let pass = '';
   progressCb = (m) => {
     if (!onProgress) return;

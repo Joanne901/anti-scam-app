@@ -3,7 +3,7 @@ import { ScrollView, View, Text, TextInput, Image, ActivityIndicator, TouchableO
 import { useTheme } from '../theme';
 import { Card, Btn, Label, SubText, Note, Verdict, Reason, SectionTitle, TextBtn } from '../components';
 import { scanMessage } from '../analyze';
-import { ocrSupported, pickImage, recognizeImage } from '../ocr';
+import { ocrSupported, pickImage, recognizeImage, warmupOcr } from '../ocr';
 
 const SAMPLE = '【賣貨便】您的訂單帳戶異常,為避免被凍結,請於今天之內點擊連結完成金流認證並重新綁定資料,逾期將無法出貨。如有疑問請加LINE洽詢專員。';
 
@@ -18,6 +18,7 @@ export default function MessageScreen(){
 
   // 上傳截圖 → 辨識文字 → 填入輸入框 → 直接分析
   const fromScreenshot = async () => {
+    warmupOcr(); // 挑照片的同時就開始下載辨識引擎
     const file = await pickImage();
     if (!file) return;
     setOcrErr(''); setRes(null);

@@ -49,7 +49,10 @@ npx expo start
 其他:
 
 - 判斷邏輯(網址 / 訊息) → `analyze.js`
-- 截圖文字辨識(網頁版,用 Tesseract.js 在瀏覽器本機辨識) → `ocr.js`
+- 截圖文字辨識(網頁版,在瀏覽器本機辨識,截圖不會上傳) → `ocr.js`
+  - 主要引擎:[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) PP-OCRv5(`@paddleocr/paddleocr-js`),模型放在 `public/models/`(Apache-2.0)
+  - 備用引擎:Tesseract.js(PaddleOCR 載入失敗時使用)
+  - 第一次使用會下載約 30MB,之後瀏覽器會快取
 - 顏色、深色模式 → `theme.js`
 - 四個畫面 → `screens/`
 - 進入點與分頁導航 → `App.js`
