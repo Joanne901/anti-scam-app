@@ -5,7 +5,7 @@
 //  LINE 內建瀏覽器 → 直接跳到手機瀏覽器開啟（LINE 內無法加到主畫面）
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, Pressable, Animated, Platform } from 'react-native';
-import { useTheme } from './theme';
+import { useTheme, iceFill } from './theme';
 import Icon from './icons';
 import { Press } from './components';
 import {
@@ -138,11 +138,11 @@ export function InstallGuide(){
         <Text style={{ fontSize: 13, color: c.textDim, lineHeight: 19, marginTop: 6, marginBottom: 12 }}>{g.intro}</Text>
         {g.steps.map(([text, icon], i) => (
           <View key={i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, borderTopWidth: i ? 1 : 0, borderTopColor: c.border }}>
-            <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: c.primarySoft, borderWidth: 1, borderColor: c.primaryLine, alignItems: 'center', justifyContent: 'center', marginRight: 11 }}>
+            <View style={[{ width: 26, height: 26, borderRadius: 13, backgroundColor: c.primarySoft, borderWidth: 1, borderColor: c.primaryLine, alignItems: 'center', justifyContent: 'center', marginRight: 11 }, iceFill(c)]}>
               <Text style={{ color: c.primary, fontWeight: '900', fontSize: 13 }}>{i + 1}</Text>
             </View>
             <Text style={{ flex: 1, fontSize: 14.5, fontWeight: '700', color: c.text }}>{text}</Text>
-            <View style={{ minWidth: 34, height: 34, borderRadius: 9, borderWidth: 1.5, borderColor: c.primaryLine, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginLeft: 8, paddingHorizontal: 4 }}>
+            <View style={[{ minWidth: 34, height: 34, borderRadius: 9, borderWidth: 1.5, borderColor: c.primaryLine, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginLeft: 8, paddingHorizontal: 4 }, iceFill(c)]}>
               <Text style={{ color: c.primary, fontSize: 17, fontWeight: '900' }}>{icon}</Text>
             </View>
           </View>
@@ -171,14 +171,14 @@ export function InstallButton({ style }){
       flexDirection: 'row', alignItems: 'center', backgroundColor: c.surface, borderWidth: 1.5, borderColor: c.primaryLine,
       borderRadius: 14, padding: 13, marginBottom: 14,
     }, style]}>
-      <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+      <View style={[{ width: 42, height: 42, borderRadius: 12, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 12 }, iceFill(c)]}>
         <Icon name="smartphone" size={22} color={c.primary} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 15, fontWeight: '900', color: c.primary }}>{oneTap ? '一鍵安裝' : '加到主畫面'}</Text>
-        <Text style={{ fontSize: 12.5, color: c.textDim, marginTop: 2 }}>像 App 一樣，從手機桌面直接打開</Text>
+        <Text style={{ fontSize: 15, fontWeight: '900', color: c.silverText }}>{oneTap ? '一鍵安裝' : '加到主畫面'}</Text>
+        <Text style={{ fontSize: 12.5, color: c.silverFaint, marginTop: 2 }}>像 App 一樣，從手機桌面直接打開</Text>
       </View>
-      <Text style={{ fontSize: 20, color: c.primary, marginLeft: 8 }}>›</Text>
+      <Text style={{ fontSize: 20, color: c.silverFaint, marginLeft: 8 }}>›</Text>
     </Press>
   );
 }

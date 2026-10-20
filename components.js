@@ -4,13 +4,23 @@ import { useTheme } from './theme';
 
 // ---- 有觸感的按鈕 ----
 // 平常看起來是鼓起來的（上亮下暗的漸層、頂端亮邊、底下陰影），按下去會往內凹、縮一點，放開彈回來。
-//  solid   黑色主要按鈕（檢查、分析、開啟…）
+//  solid   鉻銀按鈕（檢查、分析、開啟、選中的分類、撥打電話…）：上下亮、中間一道反光的金屬漸層
 //  soft    淺色次要按鈕（清除、測試、關閉…）
 //  danger  紅色緊急按鈕（165）
-//  ice     霜霧藍（選中的分類、撥打電話）
 //  card    整張可以點的卡片：平常不變，按下去往內凹一點
 //  ghost   文字連結、關閉 ✕：按下去底下出現一個淺淺的凹槽
-const SCALE = { solid: 0.97, soft: 0.97, danger: 0.97, ice: 0.96, card: 0.985, ghost: 0.92 };
+const SCALE = { solid: 0.97, soft: 0.97, danger: 0.97, card: 0.985, ghost: 0.92 };
+
+// 鉻銀的漸層（分頁列的膠囊也用這組）
+export function chrome(pressed, dark){
+  return pressed
+    ? { backgroundImage: 'linear-gradient(180deg, #d6dde5 0%, #ebeff3 45%, #bfc9d3 50%, #e6ebf0 55%, #f7f9fb 100%)',
+        boxShadow: `0 0 0 1px rgba(${dark ? '255,255,255,0.14' : '20,30,45,0.16'}), inset 0 2px 6px rgba(0,0,0,0.35)` }
+    : { backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #fbfcfd 30%, #eef2f6 46%, #d4dce5 50%, #f4f7f9 54%, #ffffff 80%, #f7f9fb 100%)',
+        boxShadow: dark
+          ? '0 0 0 1px rgba(255,255,255,0.22), 0 6px 18px rgba(212,240,252,0.14), 0 2px 4px rgba(0,0,0,0.6), inset 0 1px 0 #ffffff, inset 0 -1px 0 rgba(0,0,0,0.25)'
+          : '0 0 0 1px rgba(20,30,45,0.10), 0 4px 10px rgba(15,25,40,0.12), 0 1px 2px rgba(15,25,40,0.08), inset 0 1px 0 #ffffff, inset 0 -1px 0 rgba(0,0,0,0.08)' };
+}
 
 // 按下去時輕輕震一下（Android 的瀏覽器才支援；iPhone 不允許網頁震動，只有畫面回饋）
 export function buzz(){
@@ -27,9 +37,8 @@ function tactile(variant, pressed, c, dark){
     pressed: `inset 0 2px 6px rgba(0,0,0,${dark ? 0.55 : 0.35})`,
   });
   switch (variant) {
-    case 'solid':  return dark ? look('#ffffff', '#d9d9de', sh('0,0,0', 0.5)) : look('#3a3a41', '#141417', sh('15,15,25', 0.22));
+    case 'solid':  return chrome(pressed, dark);
     case 'danger': return look(c.dangerTop, c.dangerBottom, sh(c.dangerGlow, dark ? 0.5 : 0.28));
-    case 'ice':    return look(c.iceTop, c.iceBottom, sh(c.iceGlow, dark ? 0.5 : 0.14));
     case 'soft': return pressed
       ? { backgroundImage: dark ? 'linear-gradient(180deg,#1b1b1f,#25252a)' : 'linear-gradient(180deg,#e6e6eb,#f1f1f4)', boxShadow: `inset 0 2px 5px rgba(0,0,0,${dark ? 0.55 : 0.14})` }
       : { backgroundImage: dark ? 'linear-gradient(180deg,#34343a,#222227)' : 'linear-gradient(180deg,#ffffff,#ececf0)',

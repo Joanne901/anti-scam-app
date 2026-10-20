@@ -20,7 +20,7 @@ function DomainBreakdown({ host, reg, level }){
     <View>
       <SectionTitle>網域拆解</SectionTitle>
       <View style={{ backgroundColor: c.surface2, borderRadius: 12, borderWidth: 1, borderColor: c.border, padding: 12 }}>
-        <Text style={{ fontSize: 15, lineHeight: 22, color: c.textFaint, fontFamily: 'monospace' }}>
+        <Text dataSet={{ mono: true }} style={{ fontSize: 15, lineHeight: 22, color: c.textFaint, fontFamily: 'monospace' }}>
           {host.slice(0, cut)}
           <Text style={{ color: col, fontWeight: '900' }}>{host.slice(cut)}</Text>
         </Text>

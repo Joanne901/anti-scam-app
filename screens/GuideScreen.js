@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
-import { useTheme } from '../theme';
+import { useTheme, iceFill } from '../theme';
 import Icon from '../icons';
 import { SubText, Press } from '../components';
 import { GUIDE, GUIDE_CATS } from '../data';
@@ -41,14 +41,14 @@ function Item({ g }){
   const c = useTheme();
   const [open, setOpen] = useState(false);
   return (
-    <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: open ? c.primary : c.border, borderRadius: 14, marginBottom: 10, overflow: 'hidden' }}>
+    <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: open ? c.primaryLine : c.border, borderRadius: 14, marginBottom: 10, overflow: 'hidden' }}>
       <Press variant="card" onPress={() => setOpen(o => !o)} accessibilityRole="button" style={{ flexDirection: 'row', alignItems: 'center', padding: 12 }}>
-        <View style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+        <View style={[{ width: 42, height: 42, borderRadius: 12, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 12 }, iceFill(c)]}>
           <Icon name={g.icon} size={21} color={c.primary} strokeWidth={1.9} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontWeight: '800', fontSize: 15, color: c.text }}>{g.name}</Text>
-          <Text numberOfLines={open ? undefined : 1} style={{ fontSize: 12.5, color: c.textDim, marginTop: 3, lineHeight: 18 }}>{g.sum}</Text>
+          <Text style={{ fontWeight: '800', fontSize: 15, color: c.silverText }}>{g.name}</Text>
+          <Text numberOfLines={open ? undefined : 1} style={{ fontSize: 12.5, color: c.silverFaint, marginTop: 3, lineHeight: 18 }}>{g.sum}</Text>
         </View>
         <Text style={{ color: c.textFaint, fontSize: 18, marginLeft: 8, transform: [{ rotate: open ? '90deg' : '0deg' }] }}>›</Text>
       </Press>
@@ -69,12 +69,12 @@ function Item({ g }){
 function Chip({ label, count, active, onPress }){
   const c = useTheme();
   return (
-    <Press variant={active ? 'ice' : 'soft'} onPress={onPress} accessibilityRole="button" style={{
+    <Press variant={active ? 'solid' : 'soft'} onPress={onPress} accessibilityRole="button" style={{
       flexDirection: 'row', alignItems: 'center', paddingVertical: 7, paddingHorizontal: 13, borderRadius: 999, marginRight: 8,
-      backgroundColor: active ? c.primarySoft : c.surface, borderWidth: 1, borderColor: active ? c.primaryLine : c.border,
+      backgroundColor: active ? c.solid : c.surface, borderWidth: 1, borderColor: active ? c.solid : c.border,
     }}>
-      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? c.primary : c.text }}>{label}</Text>
-      <Text style={{ fontSize: 12, fontWeight: '700', marginLeft: 5, color: active ? c.primary : c.textFaint }}>{count}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? c.solidInk : c.text }}>{label}</Text>
+      <Text style={{ fontSize: 12, fontWeight: '700', marginLeft: 5, color: active ? c.solidInk : c.textFaint, opacity: active ? 0.6 : 1 }}>{count}</Text>
     </Press>
   );
 }
@@ -89,9 +89,9 @@ export default function GuideScreen(){
       <SubText style={{ marginBottom: 12 }}>認得話術，就不容易上當。點開看每種手法的破綻與正確做法。</SubText>
 
       <View style={{ backgroundColor: c.surface, borderRadius: 14, borderWidth: 1, borderColor: c.border, padding: 13, marginBottom: 14, flexDirection: 'row' }}>
-        <View style={{ width: 4, borderRadius: 2, backgroundColor: c.primary, marginRight: 11 }} />
+        <View style={{ width: 4, borderRadius: 2, backgroundColor: c.sky, marginRight: 11 }} />
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 13, fontWeight: '800', color: c.primary, marginBottom: 3 }}>共通原則</Text>
+          <Text style={{ fontSize: 13, fontWeight: '800', color: c.sky, marginBottom: 3 }}>共通原則</Text>
           <Text style={{ fontSize: 13, color: c.text, lineHeight: 20 }}>任何要你「點連結輸入卡號、網銀、驗證碼」、「去 ATM 或網銀操作」、「先付錢才能領錢」的要求，幾乎都是詐騙。</Text>
         </View>
       </View>

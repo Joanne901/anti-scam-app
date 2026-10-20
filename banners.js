@@ -1,7 +1,7 @@
 // 浮在分頁列下方的提示卡：有新版本 / 加到主畫面（只在網頁版出現）
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
-import { useTheme } from './theme';
+import { useTheme, iceFill } from './theme';
 import Icon from './icons';
 import { Press } from './components';
 import { checkForUpdate, onAppVisible, installTipDismissed, dismissInstallTip, onInstallAvailable, canPromptInstall } from './pwa';
@@ -17,7 +17,7 @@ function Toast({ icon, title, body, action, onAction, onClose }){
       borderWidth: 1, borderColor: c.primaryLine, padding: 12,
       shadowColor: '#141929', shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 6,
     }}>
-      <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
+      <View style={[{ width: 36, height: 36, borderRadius: 10, backgroundColor: c.primarySoft, alignItems: 'center', justifyContent: 'center', marginRight: 10 }, iceFill(c)]}>
         <Icon name={icon} size={20} color={c.primary} />
       </View>
       <View style={{ flex: 1 }}>

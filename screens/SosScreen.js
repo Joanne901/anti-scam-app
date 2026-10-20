@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Linking } from 'react-native';
-import { useTheme } from '../theme';
+import { useTheme, iceFill } from '../theme';
 import Icon from '../icons';
 import { SubText, Note, Press } from '../components';
 import { STEPS, STEP_PHASES } from '../data';
@@ -28,24 +28,24 @@ function Step({ n, s, last }){
   return (
     <View style={{ flexDirection: 'row' }}>
       <View style={{ alignItems: 'center', width: 30, marginRight: 12 }}>
-        <View style={{
+        <View style={[{
           width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
           backgroundColor: c.primarySoft, borderWidth: 1, borderColor: c.primaryLine,
-        }}>
+        }, iceFill(c)]}>
           <Text style={{ color: c.primary, fontWeight: '900', fontSize: 13 }}>{n}</Text>
         </View>
         {!last && <View style={{ flex: 1, width: 2, backgroundColor: c.border, marginVertical: 3 }} />}
       </View>
       <View style={{ flex: 1, paddingBottom: last ? 4 : 18 }}>
-        <Text style={{ fontWeight: '800', fontSize: 15, color: c.text, marginTop: 3 }}>{s.t}</Text>
-        <Text style={{ fontSize: 13, color: c.textDim, lineHeight: 20, marginTop: 4 }}>{s.d}</Text>
+        <Text style={{ fontWeight: '800', fontSize: 15, color: c.silverText, marginTop: 3 }}>{s.t}</Text>
+        <Text style={{ fontSize: 13, color: c.silverFaint, lineHeight: 20, marginTop: 4 }}>{s.d}</Text>
         {s.call && (
-          <Press variant="ice" onPress={() => call(s.call)} accessibilityRole="button" style={{
+          <Press variant="solid" onPress={() => call(s.call)} accessibilityRole="button" style={{
             alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', marginTop: 9,
-            backgroundColor: c.primarySoft, borderWidth: 1, borderColor: c.primaryLine, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12,
+            backgroundColor: c.solid, borderWidth: 1, borderColor: c.solid, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12,
           }}>
-            <View style={{ marginRight: 5 }}><Icon name="phone" size={13} color={c.primary} strokeWidth={2.2} /></View>
-            <Text style={{ color: c.primary, fontWeight: '800', fontSize: 13 }}>撥打 {s.call}</Text>
+            <View style={{ marginRight: 5 }}><Icon name="phone" size={13} color={c.solidInk} strokeWidth={2.2} /></View>
+            <Text style={{ color: c.solidInk, fontWeight: '800', fontSize: 13 }}>撥打 {s.call}</Text>
           </Press>
         )}
       </View>

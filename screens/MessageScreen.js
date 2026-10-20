@@ -137,13 +137,12 @@ export default function MessageScreen(){
 
 const LINK_LEVEL = { danger: 'hi', warn: 'mid', low: 'lo', ok: 'info' };
 
-// 上傳截圖區塊：還沒選圖時是虛線框；選了之後顯示縮圖與辨識進度
+// 上傳截圖區塊：跟按鈕一樣是鉻銀色；選了圖之後顯示縮圖與辨識進度
 function UploadTile({ shot, ocr, err, onPress }){
   const c = useTheme();
   return (
-    <Press variant="card" onPress={onPress} accessibilityRole="button" style={{
-      flexDirection: 'row', alignItems: 'center', borderRadius: 14, borderWidth: 1.5, borderStyle: 'dashed',
-      borderColor: c.primary, backgroundColor: c.primarySoft, padding: 12,
+    <Press variant="solid" onPress={onPress} accessibilityRole="button" style={{
+      flexDirection: 'row', alignItems: 'center', borderRadius: 14, backgroundColor: c.solid, padding: 12,
     }}>
       {shot ? (
         <Image source={{ uri: shot }} style={{ width: 48, height: 80, borderRadius: 8, backgroundColor: c.border }} resizeMode="cover" />
@@ -165,8 +164,8 @@ function UploadTile({ shot, ocr, err, onPress }){
           </>
         ) : (
           <>
-            <Text style={{ fontSize: 15, fontWeight: '800', color: c.primary }}>{shot ? '換一張' : '上傳'}</Text>
-            <Text style={{ fontSize: 12.5, color: err ? c.dangerInk : c.textDim, marginTop: 3, lineHeight: 18 }}>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: c.silverOn }}>{shot ? '換一張' : '上傳'}</Text>
+            <Text style={{ fontSize: 12.5, color: err ? c.dangerInk : c.silverFaint, marginTop: 3, lineHeight: 18 }}>
               {err || (shot ? '已分析。有錯字可在下方修正後再按「分析」。' : '自動辨識並分析，截圖不外傳')}
             </Text>
           </>
