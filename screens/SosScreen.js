@@ -15,7 +15,7 @@ function CallButton({ num, label, solid }){
     }}>
       <View style={{ alignItems: 'center' }}>
         <Text style={{ color: solid ? '#fff' : c.danger, fontWeight: '900', fontSize: 22, letterSpacing: 1.5 }}>{num}</Text>
-        <Text style={{ color: solid ? '#fff' : c.danger, fontSize: 11.5, fontWeight: '700', opacity: 0.9, marginTop: 1 }}>撥打 · {label}</Text>
+        <Text style={{ color: solid ? '#fff' : c.danger, fontSize: 11.5, fontWeight: '700', opacity: 0.9, marginTop: 1 }}>撥打・{label}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -56,15 +56,15 @@ export default function SosScreen(){
   const c = useTheme();
 
   return (
-    <ScrollView style={{ backgroundColor: c.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
-      <SubText style={{ marginBottom: 12 }}>別慌,照順序做。愈早處理,擋下損失的機會愈大。</SubText>
+    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
+      <SubText style={{ marginBottom: 12 }}>別慌，照順序做。愈早處理，擋下損失的機會愈大。</SubText>
 
       <View style={{ backgroundColor: c.dangerSoft, borderRadius: 16, borderWidth: 1, borderColor: c.danger, padding: 15, marginBottom: 18 }}>
         <Text style={{ color: c.dangerInk, fontWeight: '900', fontSize: 16 }}>先打電話求助</Text>
-        <Text style={{ color: c.textDim, fontSize: 12.5, marginTop: 4, marginBottom: 13, lineHeight: 19 }}>165 反詐騙專線 24 小時服務,可諮詢、通報並協助聯繫銀行;有立即危險請打 110。</Text>
+        <Text style={{ color: c.textDim, fontSize: 12.5, marginTop: 4, marginBottom: 13, lineHeight: 19 }}>165 反詐騙專線 24 小時服務，可諮詢、通報並協助聯繫銀行；有立即危險請打 110。</Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <CallButton num="165" label="反詐騙專線" solid />
-          <CallButton num="110" label="報案 / 緊急" />
+          <CallButton num="110" label="報案／緊急" />
         </View>
       </View>
 
@@ -85,7 +85,7 @@ export default function SosScreen(){
         );
       })}
 
-      <Note>停卡 / 圈存請打你卡片背面或存摺上的銀行官方客服電話。{'\n'}本頁為一般處理指引,實際程序以各機關與 165 說明為準。</Note>
+      <Note>停卡／圈存請打你卡片背面或存摺上的銀行官方客服電話。{'\n'}本頁為一般處理指引，實際程序以各機關與 165 說明為準。</Note>
     </ScrollView>
   );
 }

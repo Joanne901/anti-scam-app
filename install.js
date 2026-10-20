@@ -35,45 +35,45 @@ function guideFor(){
   const kind = deviceKind();
   if (inAppBrowser()) {
     return {
-      intro: '在臉書 / IG 裡面沒辦法加到主畫面,要先換到手機瀏覽器。',
+      intro: '在臉書／IG 裡面沒辦法加到主畫面，要先換到手機瀏覽器。',
       arrow: 'topRight',
-      steps: [['點右上角的「⋯」', '⋯'], ['選「在外部瀏覽器開啟」', '↗'], ['開好之後,再按一次「加到主畫面」', '📲']],
+      steps: [['點右上角的「⋯」', '⋯'], ['選「在外部瀏覽器開啟」', '↗'], ['開好之後，再按一次「加到主畫面」', '📲']],
     };
   }
   if (kind === 'ios') {
     const br = iosBrowser();
     if (br === 'chrome') {
       return {
-        intro: 'iPhone 規定要從瀏覽器的分享選單加入,跟著三步驟就好。',
+        intro: 'iPhone 規定要從瀏覽器的分享選單加入，跟著三步驟就好。',
         arrow: 'topShare',
-        steps: [['點網址列右邊的「分享」', '⬆'], ['往下滑,點「加入主畫面」', '＋'], ['點右上角「加入」', '✓']],
+        steps: [['點網址列右邊的「分享」', '⬆'], ['往下滑，點「加入主畫面」', '＋'], ['點右上角「加入」', '✓']],
       };
     }
     if (br === 'other') {
       return {
-        intro: '這個瀏覽器可能找不到「加入主畫面」,建議改用 Safari 開啟本頁。',
+        intro: '這個瀏覽器可能找不到「加入主畫面」，建議改用 Safari 開啟本頁。',
         arrow: null,
-        steps: [['點瀏覽器的「分享」', '⬆'], ['找「加入主畫面」', '＋'], ['找不到的話,複製網址到 Safari 開啟', '🧭']],
+        steps: [['點瀏覽器的「分享」', '⬆'], ['找「加入主畫面」', '＋'], ['找不到的話，複製網址到 Safari 開啟', '🧭']],
         copy: true,
       };
     }
     if (iosMajor() >= 26) {
       return {
-        intro: 'iPhone 規定要從 Safari 的分享選單加入,跟著步驟就好。',
+        intro: 'iPhone 規定要從 Safari 的分享選單加入，跟著步驟就好。',
         arrow: 'bottomRight',
-        steps: [['點右下角的「⋯」', '⋯'], ['點「分享」', '⬆'], ['往下滑,點「加入主畫面」', '＋'], ['點右上角「加入」', '✓']],
+        steps: [['點右下角的「⋯」', '⋯'], ['點「分享」', '⬆'], ['往下滑，點「加入主畫面」', '＋'], ['點右上角「加入」', '✓']],
       };
     }
     return {
-      intro: 'iPhone 規定要從 Safari 的分享選單加入,跟著三步驟就好。',
+      intro: 'iPhone 規定要從 Safari 的分享選單加入，跟著三步驟就好。',
       arrow: 'bottomCenter',
-      steps: [['點下方工具列的「分享」', '⬆'], ['往下滑,點「加入主畫面」', '＋'], ['點右上角「加入」', '✓']],
+      steps: [['點下方工具列的「分享」', '⬆'], ['往下滑，點「加入主畫面」', '＋'], ['點右上角「加入」', '✓']],
     };
   }
   // Android：沒有系統安裝視窗時（例如 Samsung、Firefox，或 Chrome 還沒準備好）
   const samsung = androidBrowser() === 'samsung';
   return {
-    intro: '從瀏覽器選單加入,跟著步驟就好。',
+    intro: '從瀏覽器選單加入，跟著步驟就好。',
     arrow: samsung ? 'bottomRight' : 'topRight',
     steps: samsung
       ? [['點右下角的「≡」選單', '≡'], ['點「新增頁面至」→「主畫面」', '＋'], ['點「新增」', '✓']]
@@ -174,7 +174,7 @@ export function InstallButton({ style }){
       </View>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 15, fontWeight: '900', color: c.primary }}>{oneTap ? '一鍵安裝' : '加到主畫面'}</Text>
-        <Text style={{ fontSize: 12.5, color: c.textDim, marginTop: 2 }}>像 App 一樣,從手機桌面直接打開</Text>
+        <Text style={{ fontSize: 12.5, color: c.textDim, marginTop: 2 }}>像 App 一樣，從手機桌面直接打開</Text>
       </View>
       <Text style={{ fontSize: 20, color: c.primary, marginLeft: 8 }}>›</Text>
     </TouchableOpacity>

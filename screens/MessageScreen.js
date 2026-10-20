@@ -5,7 +5,7 @@ import { Card, Btn, Label, SubText, Note, Verdict, Reason, SectionTitle, TextBtn
 import { scanMessage } from '../analyze';
 import { ocrSupported, pickImage, recognizeImage, warmupOcr } from '../ocr';
 
-const SAMPLE = '【賣貨便】您的訂單帳戶異常,為避免被凍結,請於今天之內點擊連結完成金流認證並重新綁定資料,逾期將無法出貨。如有疑問請加LINE洽詢專員。';
+const SAMPLE = '【賣貨便】您的訂單帳戶異常，為避免被凍結，請於今天之內點擊連結完成金流認證並重新綁定資料，逾期將無法出貨。如有疑問請加LINE洽詢專員。';
 
 export default function MessageScreen(){
   const c = useTheme();
@@ -27,11 +27,11 @@ export default function MessageScreen(){
     setOcr({ label: '準備中', pct: 0 });
     try {
       const out = await recognizeImage(file, setOcr);
-      if (!out) { setOcrErr('截圖裡沒有辨識到文字,請換一張清楚一點的截圖,或直接貼上文字。'); return; }
+      if (!out) { setOcrErr('截圖裡沒有辨識到文字，請換一張清楚一點的截圖，或直接貼上文字。'); return; }
       setText(out);
       run(out);
     } catch (e) {
-      setOcrErr(e.message || '辨識失敗,請再試一次。');
+      setOcrErr(e.message || '辨識失敗，請再試一次。');
     } finally {
       setOcr(null);
     }
@@ -40,8 +40,8 @@ export default function MessageScreen(){
   const clear = () => { setText(''); setRes(null); setOcrErr(''); if (shot) URL.revokeObjectURL(shot); setShot(null); };
 
   return (
-    <ScrollView style={{ backgroundColor: c.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-      <SubText style={{ marginBottom: 12 }}>{ocrSupported ? '上傳對話截圖或貼上訊息' : '把整段訊息貼上來'},幫你標出詐騙常用的關鍵字與話術類型。</SubText>
+    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <SubText style={{ marginBottom: 12 }}>{ocrSupported ? '上傳對話截圖或貼上訊息' : '把整段訊息貼上來'}，幫你標出詐騙常用的關鍵字與話術類型。</SubText>
 
       <Card>
         {ocrSupported && (
@@ -50,7 +50,7 @@ export default function MessageScreen(){
             <View style={{ flexDirection: 'row', marginTop: 10, paddingHorizontal: 2 }}>
               <Text style={{ fontSize: 12, marginRight: 6 }}>💡</Text>
               <Text style={{ flex: 1, fontSize: 12, lineHeight: 18, color: c.textDim }}>
-                最準:iPhone 在照片裡<Text style={{ fontWeight: '800', color: c.text }}>長按文字 → 拷貝</Text>,Android 用 Google 智慧鏡頭複製文字,再貼到下方。
+                最準：iPhone 在照片裡<Text style={{ fontWeight: '800', color: c.text }}>長按文字 → 拷貝</Text>，Android 用 Google 智慧鏡頭複製文字，再貼到下方。
               </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 14 }}>
@@ -121,7 +121,7 @@ export default function MessageScreen(){
                 <View key={i} style={{ paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: c.border }}>
                   <Text style={{ fontSize: 14, fontWeight: '800', color: c.text }}>{h.type}</Text>
                   <Text style={{ fontSize: 13, lineHeight: 20, color: c.textDim, marginTop: 3 }}>{h.tip}</Text>
-                  <Text style={{ fontSize: 12, color: c.textFaint, marginTop: 4 }}>命中:{h.found.join('、')}</Text>
+                  <Text style={{ fontSize: 12, color: c.textFaint, marginTop: 4 }}>命中：{h.found.join('、')}</Text>
                 </View>
               ))}
             </>
@@ -129,7 +129,7 @@ export default function MessageScreen(){
         </Verdict>
       )}
 
-      <Note>偵測的是「詐騙常見的語言模式」,不代表對特定對象的結論。{'\n'}正常訊息也可能命中少數關鍵字,請搭配情境判斷。</Note>
+      <Note>偵測的是「詐騙常見的語言模式」，不代表對特定對象的結論。{'\n'}正常訊息也可能命中少數關鍵字，請搭配情境判斷。</Note>
     </ScrollView>
   );
 }
@@ -166,7 +166,7 @@ function UploadTile({ shot, ocr, err, onPress }){
           <>
             <Text style={{ fontSize: 15, fontWeight: '800', color: c.primary }}>{shot ? '換一張' : '上傳'}</Text>
             <Text style={{ fontSize: 12.5, color: err ? c.dangerInk : c.textDim, marginTop: 3, lineHeight: 18 }}>
-              {err || (shot ? '已分析。有錯字可在下方修正後再按「分析」。' : '自動辨識並分析,截圖不外傳')}
+              {err || (shot ? '已分析。有錯字可在下方修正後再按「分析」。' : '自動辨識並分析，截圖不外傳')}
             </Text>
           </>
         )}

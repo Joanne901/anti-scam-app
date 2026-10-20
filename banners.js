@@ -74,7 +74,7 @@ export default function Banners({ top }){
   } else if (showInstall) {
     toast = (
       <Toast icon="📲" title="加到主畫面"
-        body={oneTap ? '一鍵安裝到主畫面,像 App 一樣使用。' : '像 App 一樣,從手機桌面直接打開。'}
+        body={oneTap ? '一鍵安裝到主畫面，像 App 一樣使用。' : '像 App 一樣，從手機桌面直接打開。'}
         action={oneTap ? '安裝' : '加入'}
         onAction={() => { close(); startInstall(); }} onClose={close} />
     );

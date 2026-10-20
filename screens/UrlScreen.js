@@ -27,7 +27,7 @@ function DomainBreakdown({ host, reg, level }){
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
           <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: col, marginRight: 7 }} />
           <Text style={{ fontSize: 12.5, color: c.textDim, flex: 1 }}>
-            真正的所有者是 <Text style={{ color: c.text, fontWeight: '800' }}>{reg}</Text>,前面的字都可以亂取
+            真正的所有者是 <Text style={{ color: c.text, fontWeight: '800' }}>{reg}</Text>，前面的字都可以亂取
           </Text>
         </View>
       </View>
@@ -49,8 +49,8 @@ export default function UrlScreen(){
   };
 
   return (
-    <ScrollView style={{ backgroundColor: c.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-      <SubText style={{ marginBottom: 12 }}>貼上可疑連結,幫你拆解網域、判斷風險,並說明為什麼。</SubText>
+    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <SubText style={{ marginBottom: 12 }}>貼上可疑連結，幫你拆解網域、判斷風險，並說明為什麼。</SubText>
 
       <Card>
         <Label>要檢查的網址</Label>
@@ -94,7 +94,7 @@ export default function UrlScreen(){
       <InstallButton />
       <NotifyCard />
 
-      <Note>本工具依公開的釣魚特徵判斷,無法保證 100% 準確。{'\n'}最保險:自己開官方 App 或手動輸入官網,不要點別人給的連結。</Note>
+      <Note>本工具依公開的釣魚特徵判斷，無法保證 100% 準確。{'\n'}最保險：自己開官方 App 或手動輸入官網，不要點別人給的連結。</Note>
     </ScrollView>
   );
 }

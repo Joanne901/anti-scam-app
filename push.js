@@ -36,7 +36,7 @@ async function post(path, body){
   const res = await fetch(PUSH_SERVER + path, {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error('推播伺服器回應錯誤(' + res.status + ')');
+  if (!res.ok) throw new Error('推播伺服器回應錯誤（' + res.status + '）');
   return res.json();
 }
 

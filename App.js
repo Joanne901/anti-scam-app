@@ -17,20 +17,21 @@ import { isStandalone, deviceKind } from './pwa';
 const Tab = createBottomTabNavigator();
 const TAB_BAR_HEIGHT = 64;
 const STANDALONE = Platform.OS === 'web' && isStandalone();
+// 從主畫面打開時沒有瀏覽器網址列，分頁列會直接貼著手機狀態列（時間、電量），往下留一點空間
+const STANDALONE_GAP = STANDALONE ? 14 : 0;
 
-// 頁首上緣要留的空間：從主畫面打開時，藍色頁首會延伸到手機狀態列（時間、電量）底下，
-// 用 safe-area 讓出狀態列，再多留一點讓分頁不要貼著狀態列
-function headerTop(insetTop){
-  if (!STANDALONE) return insetTop;
-  if (insetTop > 0) return insetTop + 4;
-  return deviceKind() === 'ios' ? 50 : 14; // 讀不到 safe-area 時的保守值
+// 從主畫面打開時，手機狀態列（時間、電量那一條）的高度；頁面會延伸到狀態列底下，這一條塗上靛紫色
+function statusBarHeight(insetTop){
+  if (!STANDALONE) return 0;
+  if (insetTop > 0) return insetTop;
+  return deviceKind() === 'ios' ? 47 : 0; // 讀不到 safe-area 時的保守值（Android 的狀態列由系統依 theme_color 上色）
 }
 
 const TabIcon = (emoji) => ({ focused }) => (
-  <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.75 }}>{emoji}</Text>
+  <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.6 }}>{emoji}</Text>
 );
 
-// 分頁按鈕：選中的分頁底下有一條短的白色圓角底線
+// 分頁按鈕：選中的分頁底下加一條主色底線
 const TabButton = (c) => ({ children, style, onPress, onLongPress, ...rest }) => {
   const selected = rest['aria-selected'] ?? rest.accessibilityState?.selected;
   return (
@@ -39,17 +40,17 @@ const TabButton = (c) => ({ children, style, onPress, onLongPress, ...rest }) =>
       onLongPress={onLongPress}
       accessibilityRole="tab"
       accessibilityState={{ selected }}
-      style={style}
+      style={[style, { borderBottomWidth: 3, borderBottomColor: selected ? c.primary : 'transparent' }]}
     >
       {children}
-      <View style={{ position: 'absolute', bottom: 0, alignSelf: 'center', width: 26, height: 3, borderRadius: 2, backgroundColor: selected ? c.headerInk : 'transparent' }} />
     </Pressable>
   );
 };
 
 function Tabs(){
   const insets = useSafeAreaInsets();
-  const top = headerTop(insets.top);
+  const statusH = statusBarHeight(insets.top);
+  const top = statusH + STANDALONE_GAP;
   const scheme = useColorScheme();
   const c = useTheme();
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
@@ -68,14 +69,12 @@ function Tabs(){
             tabBarPosition: 'top',
             tabBarLabelPosition: 'below-icon',
             headerShown: false,
-            tabBarActiveTintColor: c.headerInk,
-            tabBarInactiveTintColor: c.headerDim,
-            tabBarStyle: { height: TAB_BAR_HEIGHT + top, paddingTop: top, backgroundColor: c.header, borderBottomWidth: 0, elevation: 0, shadowOpacity: 0 },
-            tabBarItemStyle: { paddingTop: 2, paddingBottom: 9 },
-            // 內容區像一張圓角卡片疊在藍色頁首上
-            sceneStyle: { backgroundColor: c.header },
+            tabBarActiveTintColor: c.primary,
+            tabBarInactiveTintColor: c.textFaint,
+            tabBarStyle: { height: TAB_BAR_HEIGHT + top, paddingTop: top, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border, elevation: 0, shadowOpacity: 0 },
+            tabBarItemStyle: { paddingTop: 4, paddingBottom: 6 },
             tabBarLabelStyle: { fontSize: 13, lineHeight: 18, fontWeight: '800', marginTop: 2, flexShrink: 0 },
-            tabBarActiveBackgroundColor: c.header,
+            tabBarActiveBackgroundColor: c.surface,
             tabBarButton: TabButton(c),
           }}
         >
@@ -85,6 +84,9 @@ function Tabs(){
           <Tab.Screen name="緊急求助" component={SosScreen} options={{ tabBarIcon: TabIcon('🆘') }} />
         </Tab.Navigator>
       </NavigationContainer>
+      {statusH > 0 && (
+        <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: statusH, backgroundColor: c.statusBar }} />
+      )}
       <Banners top={top + TAB_BAR_HEIGHT + 8} />
       <InstallGuide />
     </View>

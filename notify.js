@@ -38,29 +38,29 @@ export function NotifyCard(){
   const run = (fn, okMsg) => async () => {
     setBusy(true); setMsg('');
     try { const s = await fn(); if (typeof s === 'string') setStatus(s); if (okMsg) setMsg(okMsg); }
-    catch (e) { setMsg((e && e.message) || '發生錯誤,請再試一次'); }
+    catch (e) { setMsg((e && e.message) || '發生錯誤，請再試一次'); }
     finally { setBusy(false); }
   };
 
   let body, actions;
   if (needHomeScreen) {
-    body = 'iPhone 要先「加到主畫面」,再從主畫面的圖示打開,才能開啟通知(Apple 的規定)。';
+    body = 'iPhone 要先「加到主畫面」，再從主畫面的圖示打開，才能開啟通知（Apple 的規定）。';
     actions = <SmallBtn primary title="加入" onPress={startInstall} />;
   } else if (status === 'denied') {
     body = ios
       ? '通知被關掉了。請到 iPhone「設定 → 通知 → 防詐小衛」開啟「允許通知」。'
-      : '通知被封鎖了。請點網址列左邊的圖示 →「權限」或「網站設定」,把通知改成允許。';
+      : '通知被封鎖了。請點網址列左邊的圖示 →「權限」或「網站設定」，把通知改成允許。';
   } else if (status === 'on') {
-    body = '已開啟 ✓ 有新版本時,手機會跳出通知,App 關著也收得到。';
+    body = '已開啟 ✓ 有新版本時，手機會跳出通知，App 關著也收得到。';
     actions = (
       <>
-        <SmallBtn title="測試" onPress={run(async () => { await sendTestPush(); }, '測試通知已送出,幾秒內會收到。')} />
+        <SmallBtn title="測試" onPress={run(async () => { await sendTestPush(); }, '測試通知已送出，幾秒內會收到。')} />
         <SmallBtn title="關閉" onPress={run(disablePush, '已關閉更新通知。')} />
       </>
     );
   } else {
-    body = '有新版本時跳出通知提醒你,App 關著也收得到。';
-    actions = <SmallBtn primary title="開啟" onPress={run(enablePush, '已開啟!可以按「測試」試試看。')} />;
+    body = '有新版本時跳出通知提醒你，App 關著也收得到。';
+    actions = <SmallBtn primary title="開啟" onPress={run(enablePush, '已開啟！可以按「測試」試試看。')} />;
   }
 
   return (

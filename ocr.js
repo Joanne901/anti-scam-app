@@ -68,7 +68,7 @@ function initEngine(){
         if (Date.now() - lastProgress > STALL_MS) {
           clearInterval(watch);
           resetWorker('準備辨識引擎逾時');
-          reject(new Error('準備辨識引擎逾時,請確認網路後再試一次'));
+          reject(new Error('準備辨識引擎逾時，請確認網路後再試一次'));
         }
       }, 2000);
       call({ type: 'init' }).then(resolve, reject).finally(() => clearInterval(watch));
@@ -102,7 +102,7 @@ function loadTesseract(){
       const s = document.createElement('script');
       s.src = TESSERACT_SRC;
       s.onload = () => resolve(window.Tesseract);
-      s.onerror = () => { libPromise = null; reject(new Error('無法載入文字辨識元件,請確認網路連線')); };
+      s.onerror = () => { libPromise = null; reject(new Error('無法載入文字辨識元件，請確認網路連線')); };
       document.head.appendChild(s);
     });
   }
@@ -276,7 +276,7 @@ function extract(data){
 const STAGES = {
   'loading tesseract core': '載入辨識引擎',
   'initializing tesseract': '初始化',
-  'loading language traineddata': '下載中文辨識模型(第一次較久)',
+  'loading language traineddata': '下載中文辨識模型（第一次較久）',
   'initializing api': '準備辨識',
   'recognizing text': '辨識文字中',
 };
@@ -315,7 +315,7 @@ const MB = (n) => (n / 1048576).toFixed(n > 10485760 ? 0 : 1);
 
 async function recognizePaddle(file, onProgress){
   progressListener = (m) => {
-    if (m.stage === 'download') onProgress({ label: `下載辨識模型 ${MB(m.loaded)} / ${MB(m.total)} MB(只需一次)`, pct: m.total ? Math.round(m.loaded / m.total * 60) : 5 });
+    if (m.stage === 'download') onProgress({ label: `下載辨識模型 ${MB(m.loaded)} / ${MB(m.total)} MB（只需一次）`, pct: m.total ? Math.round(m.loaded / m.total * 60) : 5 });
     else if (m.stage === 'init') onProgress({ label: '準備辨識引擎', pct: 62 });
     else if (m.stage === 'det') onProgress({ label: '找出文字位置', pct: 68 });
     else if (m.stage === 'rec') onProgress({ label: `辨識文字 ${m.done} / ${m.total} 行`, pct: 70 + Math.round(m.done / m.total * 28) });
@@ -339,8 +339,8 @@ export async function recognizeImage(file, onProgress = () => {}){
   try {
     return await recognizePaddle(file, onProgress);
   } catch (e) {
-    if (/逾時/.test(e.message)) throw new Error(e.message + '。可以改用手機內建的「拷貝文字」貼上(見上方說明)。');
-    console.warn('PaddleOCR 無法使用,改用 Tesseract', e);
+    if (/逾時/.test(e.message)) throw new Error(e.message + '。可以改用手機內建的「拷貝文字」貼上（見上方說明）。');
+    console.warn('PaddleOCR 無法使用，改用 Tesseract', e);
     return recognizeTesseract(file, onProgress);
   }
 }
@@ -359,7 +359,7 @@ async function recognizeTesseract(file, onProgress){
     const first = await run('bin');
     // 第一次就很有把握的話，不用再跑第二次
     if (first.sure >= 0.85 && first.text) return first.text;
-    pass = '(第二次比對)';
+    pass = '（第二次比對）';
     const second = await run('plain');
     return (second.score > first.score ? second : first).text;
   } finally {

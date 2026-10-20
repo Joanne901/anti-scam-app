@@ -88,7 +88,7 @@ async function checkForNewVersion(env){
   // 開始一輪推播（之前若有沒送完的，新的直接取代）
   const note = (v.note || '').replace(SKIP_TAG, '').trim();
   await env.SUBS.put('state:broadcast', JSON.stringify({
-    payload: { title: '防詐小衛有新版本', body: note || '點一下打開,使用最新的功能與偵測規則。', url: env.APP_URL },
+    payload: { title: '防詐小衛有新版本', body: note || '點一下打開，使用最新的功能與偵測規則。', url: env.APP_URL },
     cursor: null,
   }));
   await env.SUBS.put('state:lastBundle', v.bundle);
@@ -141,7 +141,7 @@ export default {
       if (typeof data.endpoint !== 'string') return json({ error: 'missing endpoint' }, 400, origin);
       const sub = await env.SUBS.get(await keyFor(data.endpoint), 'json');
       if (!sub) return json({ error: 'not subscribed' }, 404, origin);
-      const r = await sendOne(env, sub, { title: '防詐小衛', body: '通知設定成功!之後有新版本會這樣提醒你。', url: env.APP_URL });
+      const r = await sendOne(env, sub, { title: '防詐小衛', body: '通知設定成功！之後有新版本會這樣提醒你。', url: env.APP_URL });
       if (r === 'gone') await env.SUBS.delete(await keyFor(data.endpoint));
       return json({ ok: r === 'ok', result: r }, r === 'ok' ? 200 : 502, origin);
     }

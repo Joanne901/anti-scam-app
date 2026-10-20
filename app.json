@@ -23,7 +23,7 @@
       "name": "防詐小衛",
       "shortName": "防詐小衛",
       "lang": "zh-TW",
-      "themeColor": "#3b5bdb"
+      "themeColor": "#5145d8"
     },
     "experiments": {
       "baseUrl": "/anti-scam-app"

@@ -84,14 +84,14 @@ export default function GuideScreen(){
   const cats = GUIDE_CATS.filter(k => cat === 'all' || k.key === cat);
 
   return (
-    <ScrollView style={{ backgroundColor: c.bg, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
-      <SubText style={{ marginBottom: 12 }}>認得話術,就不容易上當。點開看每種手法的破綻與正確做法。</SubText>
+    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={{ padding: 15, paddingBottom: 40 }}>
+      <SubText style={{ marginBottom: 12 }}>認得話術，就不容易上當。點開看每種手法的破綻與正確做法。</SubText>
 
       <View style={{ backgroundColor: c.surface, borderRadius: 14, borderWidth: 1, borderColor: c.border, padding: 13, marginBottom: 14, flexDirection: 'row' }}>
         <View style={{ width: 4, borderRadius: 2, backgroundColor: c.primary, marginRight: 11 }} />
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 13, fontWeight: '800', color: c.primary, marginBottom: 3 }}>共通原則</Text>
-          <Text style={{ fontSize: 13, color: c.text, lineHeight: 20 }}>任何要你「點連結輸入卡號、網銀、驗證碼」、「去 ATM 或網銀操作」、「先付錢才能領錢」的要求,幾乎都是詐騙。</Text>
+          <Text style={{ fontSize: 13, color: c.text, lineHeight: 20 }}>任何要你「點連結輸入卡號、網銀、驗證碼」、「去 ATM 或網銀操作」、「先付錢才能領錢」的要求，幾乎都是詐騙。</Text>
         </View>
       </View>
 

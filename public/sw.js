@@ -9,7 +9,7 @@ self.addEventListener('push', (event) => {
   try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data && event.data.text() }; }
   const base = self.registration.scope;
   event.waitUntil(self.registration.showNotification(data.title || '防詐小衛', {
-    body: data.body || '有新消息,點一下打開。',
+    body: data.body || '有新消息，點一下打開。',
     icon: base + 'icon-192.png',
     badge: base + 'badge-96.png',
     tag: 'app-update',      // 同一種通知只留最新一則

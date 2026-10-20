@@ -55,7 +55,7 @@ async function fetchWithCache(url, onBytes){
     if (hit) { const buf = await hit.arrayBuffer(); onBytes(buf.byteLength, buf.byteLength); return buf; }
   }
   const res = await fetch(url);
-  if (!res.ok) throw new Error('模型下載失敗(' + res.status + ')');
+  if (!res.ok) throw new Error('模型下載失敗（' + res.status + '）');
   const total = +res.headers.get('content-length') || 0;
   let buf;
   if (res.body) {
