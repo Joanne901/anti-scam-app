@@ -49,6 +49,7 @@ npx expo start
 其他:
 
 - 判斷邏輯(網址 / 訊息) → `analyze.js`
+- 截圖文字辨識(網頁版,用 Tesseract.js 在瀏覽器本機辨識) → `ocr.js`
 - 顏色、深色模式 → `theme.js`
 - 四個畫面 → `screens/`
 - 進入點與分頁導航 → `App.js`

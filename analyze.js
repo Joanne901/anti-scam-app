@@ -138,6 +138,23 @@ function buildSegments(text, words){
   return segs;
 }
 
+// 從訊息中找出網址（含沒寫 http 的 xxx.com/...），逐一用 analyzeUrl 判斷
+const LINK_RE = /(?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}(?::\d+)?(?:[\/?#][^\s<>"'，。、）)\]」]*)?/gi;
+export function findLinks(text){
+  const out = [];
+  const seen = new Set();
+  let m;
+  while ((m = LINK_RE.exec(text))) {
+    const url = m[0].replace(/[.,;:!?]+$/, '');
+    if (text[m.index - 1] === '@') continue; // email
+    const { host } = parseUrl(url);
+    if (!/[a-z]/i.test(host) || seen.has(host)) continue;
+    seen.add(host);
+    out.push({ url, ...analyzeUrl(url) });
+  }
+  return out;
+}
+
 export function scanMessage(text){
   text = (text || '').trim();
   if (!text) return null;
@@ -168,5 +185,15 @@ export function scanMessage(text){
     meta = '沒抓到明顯話術,但仍請依情境判斷,尤其涉及金錢時。';
   }
 
-  return { level, emoji, label, meta, hitTypes, segments, total };
+  // 訊息裡的連結若有高風險，整體判定跟著提高
+  const links = findLinks(text);
+  if (links.some(l => l.level === 'danger') && level !== 'danger') {
+    level = 'danger'; emoji = '⛔'; label = '高度可疑 · 訊息含高風險連結';
+    meta = '訊息裡的連結有明顯的釣魚特徵。不要點連結、不要轉帳、不要提供任何個資。';
+  } else if (links.some(l => l.level === 'warn') && level === 'ok') {
+    level = 'warn'; emoji = '⚠️'; label = '訊息含可疑連結';
+    meta = '連結有危險訊號,建議不要點,改用官方 App 或官網查證。';
+  }
+
+  return { level, emoji, label, meta, hitTypes, segments, total, links };
 }
