@@ -137,13 +137,17 @@ export default function MessageScreen(){
 
 const LINK_LEVEL = { danger: 'hi', warn: 'mid', low: 'lo', ok: 'info' };
 
-// 上傳截圖區塊：跟按鈕一樣是鉻銀色；選了圖之後顯示縮圖與辨識進度
+// 上傳截圖區塊：亮銀外觀跟按鈕一樣是鉻銀色，經典藍外觀是淡藍底的藍色虛線框；選了圖之後顯示縮圖與辨識進度
 function UploadTile({ shot, ocr, err, onPress }){
   const c = useTheme();
+  const classic = c.style === 'classic';
   return (
-    <Press variant="solid" onPress={onPress} accessibilityRole="button" style={{
-      flexDirection: 'row', alignItems: 'center', borderRadius: 14, backgroundColor: c.solid, padding: 12,
-    }}>
+    <Press variant={classic ? 'card' : 'solid'} onPress={onPress} accessibilityRole="button" style={[
+      { flexDirection: 'row', alignItems: 'center', borderRadius: 14, padding: 12 },
+      classic
+        ? { borderWidth: 1.5, borderStyle: 'dashed', borderColor: c.primary, backgroundColor: c.primarySoft }
+        : { backgroundColor: c.solid },
+    ]}>
       {shot ? (
         <Image source={{ uri: shot }} style={{ width: 48, height: 80, borderRadius: 8, backgroundColor: c.border }} resizeMode="cover" />
       ) : (

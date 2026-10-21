@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
-import { useTheme } from './theme';
+import { useTheme, StyleProvider } from './theme';
 import UrlScreen from './screens/UrlScreen';
 import MessageScreen from './screens/MessageScreen';
 import GuideScreen from './screens/GuideScreen';
@@ -15,9 +15,6 @@ import Icon from './icons';
 import { buzz, chrome } from './components';
 import { InstallGuide } from './install';
 import { isStandalone } from './pwa';
-import { loadFonts } from './fonts';
-
-loadFonts();
 
 const Tab = createBottomTabNavigator();
 const TAB_BAR_HEIGHT = 58;
@@ -26,13 +23,12 @@ const STANDALONE = Platform.OS === 'web' && isStandalone();
 const STANDALONE_GAP = STANDALONE ? 14 : 0;
 
 
-// 分頁列只放線條圖示、不放文字也不上色：目前所在的分頁深色、線條粗一點，其他淺灰
-// 分頁列：只有線條圖示、不放文字。
-// 目前所在的分頁有一顆鉻銀膠囊（金屬漸層＋中間一道反光），
+// 分頁列：只有線條圖示、不放文字也不上色。
+// 目前所在的分頁有一顆膠囊（亮銀外觀是鉻銀、經典藍外觀是鼓起來的淺灰），
 // 切換分頁時膠囊會滑過去；按下去時按鈕會縮小、陰影變成往內凹，像按到實體按鈕
 const PILL_W = 62, PILL_H = 40;
 
-// 按住還沒選中的分頁時，底下出現的淺灰凹槽（網頁版用 CSS 的漸層與陰影）
+// 經典藍外觀的淺灰膠囊；按住還沒選中的分頁時底下的凹槽也用這個（網頁版用 CSS 的漸層與陰影）
 function pillLook(dark, pressed){
   if (dark) return pressed
     ? { backgroundImage: 'linear-gradient(180deg, #1b1b1f 0%, #232328 100%)', boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.55), inset 0 -1px 0 rgba(255,255,255,0.04)' }
@@ -63,7 +59,7 @@ function TopTabBar({ state, descriptors, navigation, c, top, dark }){
             position: 'absolute', top: (TAB_BAR_HEIGHT - PILL_H) / 2, left: 0, width: PILL_W, height: PILL_H,
             borderRadius: PILL_H / 2, backgroundColor: c.bg,
             transform: [{ translateX }, { scale: pillPressed ? 0.94 : 1 }],
-          }, Platform.OS === 'web' ? chrome(pillPressed, dark) : null]} />
+          }, Platform.OS === 'web' ? (c.style === 'silver' ? chrome(pillPressed, dark) : pillLook(dark, pillPressed)) : null]} />
         )}
         {state.routes.map((route, i) => {
           const focused = state.index === i;
@@ -126,8 +122,10 @@ function Tabs(){
 
 export default function App(){
   return (
-    <SafeAreaProvider>
-      <Tabs />
-    </SafeAreaProvider>
+    <StyleProvider>
+      <SafeAreaProvider>
+        <Tabs />
+      </SafeAreaProvider>
+    </StyleProvider>
   );
 }

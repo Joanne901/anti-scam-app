@@ -4,12 +4,14 @@ import { useTheme } from './theme';
 
 // ---- 有觸感的按鈕 ----
 // 平常看起來是鼓起來的（上亮下暗的漸層、頂端亮邊、底下陰影），按下去會往內凹、縮一點，放開彈回來。
-//  solid   鉻銀按鈕（檢查、分析、開啟、選中的分類、撥打電話…）：上下亮、中間一道反光的金屬漸層
+//  solid   主要按鈕（檢查、分析、開啟…）：亮銀外觀是鉻銀（上下亮、中間一道反光），經典藍外觀是黑色
+//  accent  經典藍外觀選中的分類：藍色（亮銀外觀一樣用鉻銀）
+//  tint    經典藍外觀的撥打電話：淡藍色（亮銀外觀一樣用鉻銀）
 //  soft    淺色次要按鈕（清除、測試、關閉…）
 //  danger  紅色緊急按鈕（165）
 //  card    整張可以點的卡片：平常不變，按下去往內凹一點
 //  ghost   文字連結、關閉 ✕：按下去底下出現一個淺淺的凹槽
-const SCALE = { solid: 0.97, soft: 0.97, danger: 0.97, card: 0.985, ghost: 0.92 };
+const SCALE = { solid: 0.97, accent: 0.96, tint: 0.95, soft: 0.97, danger: 0.97, card: 0.985, ghost: 0.92 };
 
 // 鉻銀的漸層（分頁列的膠囊也用這組）
 export function chrome(pressed, dark){
@@ -37,7 +39,13 @@ function tactile(variant, pressed, c, dark){
     pressed: `inset 0 2px 6px rgba(0,0,0,${dark ? 0.55 : 0.35})`,
   });
   switch (variant) {
-    case 'solid':  return chrome(pressed, dark);
+    case 'solid':
+    case 'accent':
+    case 'tint':
+      if (c.style === 'silver') return chrome(pressed, dark);
+      if (variant === 'accent') return dark ? look('#8aa2ff', '#5c7cfa', sh('0,0,0', 0.5)) : look('#5674ee', '#2f4fcf', sh('47,79,207', 0.28));
+      if (variant === 'tint') return dark ? look('#26314f', '#1a2035', sh('0,0,0', 0.5)) : look('#f6f8fe', '#e3e9fb', sh('59,91,219', 0.12));
+      return dark ? look('#ffffff', '#d9d9de', sh('0,0,0', 0.5)) : look('#3a3a41', '#141417', sh('15,15,25', 0.22));
     case 'danger': return look(c.dangerTop, c.dangerBottom, sh(c.dangerGlow, dark ? 0.5 : 0.28));
     case 'soft': return pressed
       ? { backgroundImage: dark ? 'linear-gradient(180deg,#1b1b1f,#25252a)' : 'linear-gradient(180deg,#e6e6eb,#f1f1f4)', boxShadow: `inset 0 2px 5px rgba(0,0,0,${dark ? 0.55 : 0.14})` }

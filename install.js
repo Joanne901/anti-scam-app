@@ -163,6 +163,7 @@ export function InstallGuide(){
 // 頁面上的按鈕（iOS、Android 都是同一顆）
 export function InstallButton({ style }){
   const c = useTheme();
+  const classic = c.style === 'classic'; // 經典藍外觀：標題與箭頭用藍色
   const [oneTap, setOneTap] = useState(canPromptInstall());
   useEffect(() => onInstallAvailable(() => setOneTap(canPromptInstall())), []);
   if (!canShowInstall()) return null;
@@ -175,10 +176,10 @@ export function InstallButton({ style }){
         <Icon name="smartphone" size={22} color={c.primary} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 15, fontWeight: '900', color: c.silverText }}>{oneTap ? '一鍵安裝' : '加到主畫面'}</Text>
+        <Text style={{ fontSize: 15, fontWeight: '900', color: classic ? c.primary : c.silverText }}>{oneTap ? '一鍵安裝' : '加到主畫面'}</Text>
         <Text style={{ fontSize: 12.5, color: c.silverFaint, marginTop: 2 }}>像 App 一樣，從手機桌面直接打開</Text>
       </View>
-      <Text style={{ fontSize: 20, color: c.silverFaint, marginLeft: 8 }}>›</Text>
+      <Text style={{ fontSize: 20, color: classic ? c.primary : c.silverFaint, marginLeft: 8 }}>›</Text>
     </Press>
   );
 }

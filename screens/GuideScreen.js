@@ -66,15 +66,19 @@ function Item({ g }){
   );
 }
 
+// 分類按鈕：選中的那顆在亮銀外觀是鉻銀、在經典藍外觀是藍色
 function Chip({ label, count, active, onPress }){
   const c = useTheme();
+  const classic = c.style === 'classic';
+  const onBg = classic ? c.primary : c.solid;
+  const onInk = classic ? c.primaryInk : c.solidInk;
   return (
-    <Press variant={active ? 'solid' : 'soft'} onPress={onPress} accessibilityRole="button" style={{
+    <Press variant={active ? (classic ? 'accent' : 'solid') : 'soft'} onPress={onPress} accessibilityRole="button" style={{
       flexDirection: 'row', alignItems: 'center', paddingVertical: 7, paddingHorizontal: 13, borderRadius: 999, marginRight: 8,
-      backgroundColor: active ? c.solid : c.surface, borderWidth: 1, borderColor: active ? c.solid : c.border,
+      backgroundColor: active ? onBg : c.surface, borderWidth: 1, borderColor: active ? onBg : c.border,
     }}>
-      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? c.solidInk : c.text }}>{label}</Text>
-      <Text style={{ fontSize: 12, fontWeight: '700', marginLeft: 5, color: active ? c.solidInk : c.textFaint, opacity: active ? 0.6 : 1 }}>{count}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? onInk : c.text }}>{label}</Text>
+      <Text style={{ fontSize: 12, fontWeight: '700', marginLeft: 5, color: active ? onInk : c.textFaint, opacity: active ? (classic ? 0.85 : 0.6) : 1 }}>{count}</Text>
     </Press>
   );
 }
