@@ -3,8 +3,9 @@ import { useColorScheme, Platform } from 'react-native';
 import { setAppFont } from './fonts';
 
 // 兩種外觀，使用者在「查網址」最下面的「外觀」切換，選擇會記在這支手機裡
-//  silver   亮銀：亮銀色按鈕、午夜霧藍點綴、玫瑰紅與天空藍、俐落字體（Inter＋思源黑體）
-//  classic  經典藍：黑色按鈕、藍色點綴、原本的紅與綠、手機內建字體
+//  silver   亮銀：亮銀色按鈕、午夜霧藍點綴、玫瑰紅與天空藍
+//  classic  經典藍：黑色按鈕、藍色點綴、原本的紅與綠
+// 兩種外觀只換顏色：字體（Inter＋思源黑體）、大小、間距、位置都一樣，切換時畫面不會跳動
 export const STYLES = [
   { key: 'silver', name: '亮銀' },
   { key: 'classic', name: '經典藍' },
@@ -105,14 +106,14 @@ function saveStyle(v){
   try { localStorage.setItem(KEY, v); } catch {}
 }
 
-// 一打開就先套好字體，避免畫面先閃一下別的字體
-if (Platform.OS === 'web') setAppFont(loadStyle() === 'silver');
+// 一打開就先套好字體，避免畫面先閃一下別的字體（兩種外觀用同一套字體）
+if (Platform.OS === 'web') setAppFont(true);
 
 const StyleContext = createContext({ style: 'silver', setStyle: () => {} });
 
 export function StyleProvider({ children }){
   const [style, setStyle] = useState(loadStyle);
-  useEffect(() => { saveStyle(style); setAppFont(style === 'silver'); }, [style]);
+  useEffect(() => { saveStyle(style); }, [style]);
   return <StyleContext.Provider value={{ style, setStyle }}>{children}</StyleContext.Provider>;
 }
 

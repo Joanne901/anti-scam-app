@@ -1,5 +1,5 @@
-// 字體：「亮銀」外觀用英文與數字 Inter、中文思源黑體（Noto Sans TC），每支手機看起來都一樣俐落；
-// 「經典藍」用手機內建字體。只在網頁版生效：從 Google Fonts 載入，再用一條全域樣式蓋過預設的系統字體。
+// 字體：英文與數字 Inter、中文思源黑體（Noto Sans TC），每支手機、兩種外觀看起來都一樣俐落、位置一致。
+// 只在網頁版生效：從 Google Fonts 載入，再用一條全域樣式蓋過預設的系統字體。
 // 網址拆解那種要等寬的字，在 Text 加 dataSet={{ mono: true }} 就會改用等寬字體。
 import { Platform } from 'react-native';
 

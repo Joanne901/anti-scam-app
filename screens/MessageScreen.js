@@ -146,7 +146,7 @@ function UploadTile({ shot, ocr, err, onPress }){
       { flexDirection: 'row', alignItems: 'center', borderRadius: 14, padding: 12 },
       classic
         ? { borderWidth: 1.5, borderStyle: 'dashed', borderColor: c.primary, backgroundColor: c.primarySoft }
-        : { backgroundColor: c.solid },
+        : { borderWidth: 1.5, borderColor: 'transparent', backgroundColor: c.solid }, // 跟經典藍的虛線框一樣粗，兩種外觀大小才一致
     ]}>
       {shot ? (
         <Image source={{ uri: shot }} style={{ width: 48, height: 80, borderRadius: 8, backgroundColor: c.border }} resizeMode="cover" />

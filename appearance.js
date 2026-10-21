@@ -51,7 +51,8 @@ export function AppearanceCard(){
               }}>
               <Swatch k={s.key} />
               <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 9 }}>
-                {on && <Text style={{ color: c.primary, fontWeight: '900', fontSize: 13, marginRight: 4 }}>✓</Text>}
+                {/* 勾勾一直佔著位置（沒選時透明），兩個選項的字才不會因為選取而移動 */}
+                <Text style={{ color: on ? c.primary : 'transparent', fontWeight: '900', fontSize: 13, marginRight: 4 }}>✓</Text>
                 <Text style={{ fontSize: 13.5, fontWeight: '800', color: on ? c.primary : c.text }}>{s.name}</Text>
               </View>
             </Press>
